@@ -1,7 +1,8 @@
 QT += quick
 
 SOURCES += \
-    src/main.cpp
+    src/main.cpp \
+    src/model/pointslistmodel.cpp
 
 resources.prefix = /$${TARGET}
 RESOURCES += ./res/chart.qrc
@@ -18,3 +19,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES +=
+
+HEADERS += \
+    src/model/pointslistmodel.h
