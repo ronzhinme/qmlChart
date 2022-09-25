@@ -33,8 +33,6 @@ Canvas {
     onPaint: {
         context.reset()
         context.lineWidth = 2.3
-        context.miterLimit = 1
-        context.lineCap = "square"
         context.strokeStyle = Qt.rgba(.4,.6,.8)
         context.path = isCurve ? myPathCurved : myPath
         context.stroke()
