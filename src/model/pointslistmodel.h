@@ -2,7 +2,15 @@
 #define POINTSLISTMODEL_H
 
 #include <QAbstractListModel>
+#include <QSortFilterProxyModel>
 #include <QPointF>
+
+class FilterPointsProxyModel: public QSortFilterProxyModel
+{
+    // QSortFilterProxyModel interface
+protected:
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+};
 
 class PointsListModel : public QAbstractListModel
 {
@@ -16,6 +24,10 @@ public:
     Q_INVOKABLE QVariant getPoint(int index) const;
     Q_INVOKABLE QPointF getLeftTopPoint() const;
     Q_INVOKABLE QPointF getRightBottomPoint() const;
+    Q_INVOKABLE void setLeftTopViewPortPoint(qreal x, qreal y);
+    Q_INVOKABLE void setRightBottomViewPortPoint(qreal x, qreal y);
+    Q_INVOKABLE QPointF getLeftTopViewPortPoint() const;
+    Q_INVOKABLE QPointF getRightBottomViewPortPoint() const;
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -24,6 +36,8 @@ private:
     QList<QPointF> points_;
     QPointF leftTopPoint_;
     QPointF rightBottomPoint_;
+    QPointF leftTopViewPortPoint_;
+    QPointF rightBottomViewPortPoint_;
 
     void updateLeftTopPoint_(const QPointF &point);
     void updateRightBottomPoint_(const QPointF &point);

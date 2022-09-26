@@ -8,37 +8,29 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
+    onWidthChanged: {
+        PointsListModelInstance.setLeftTopViewPortPoint(0, 0)
+        PointsListModelInstance.setRightBottomViewPortPoint(width, height)
+    }
+
+    onHeightChanged: {
+        PointsListModelInstance.setLeftTopViewPortPoint(0, 0)
+        PointsListModelInstance.setRightBottomViewPortPoint(width, height)
+    }
+
     Flickable {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.verticalCenter
+        anchors.fill: parent
 
         Chart {
-            model: PointsListModelInstance
+            model: PointsListFilterInstance
             anchors.fill: parent
             lineColor: "lime"
             lineWidth: 2.5
-        }
+        }        
     }
 
-    ListView {
-        id: listView
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.verticalCenter
-        model: PointsListModelInstance
-        delegate: Text {
-            text: index + "\tx: " + display.x + "\ty: " + display.y
-        }
-        clip: true
-    }
-
-    Rectangle {
-        color: "transparent"
-        border.color: "black"
-        border.width: 1
-        anchors.fill: listView
+    Component.onCompleted: {
+        PointsListModelInstance.setLeftTopViewPortPoint(0, 0)
+        PointsListModelInstance.setRightBottomViewPortPoint(width, height)
     }
 }

@@ -50,6 +50,28 @@ QPointF PointsListModel::getRightBottomPoint() const
     return rightBottomPoint_;
 }
 
+void PointsListModel::setLeftTopViewPortPoint(qreal x, qreal y)
+{
+    leftTopViewPortPoint_.setX(x);
+    leftTopViewPortPoint_.setY(y);
+}
+
+void PointsListModel::setRightBottomViewPortPoint(qreal x, qreal y)
+{
+    rightBottomPoint_.setX(x);
+    rightBottomPoint_.setY(y);
+}
+
+QPointF PointsListModel::getLeftTopViewPortPoint() const
+{
+    return leftTopViewPortPoint_;
+}
+
+QPointF PointsListModel::getRightBottomViewPortPoint() const
+{
+    return rightBottomViewPortPoint_;
+}
+
 int PointsListModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
@@ -94,4 +116,23 @@ void PointsListModel::updateRightBottomPoint_(const QPointF &point)
     {
         rightBottomPoint_.setY(point.y());
     }
+}
+
+
+bool FilterPointsProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    Q_UNUSED(sourceParent);
+
+    const auto srcModel = static_cast<PointsListModel*>(sourceModel());
+    const auto srcObject = srcModel->getPoint(sourceRow);
+    if(srcObject.isValid())
+    {
+        const auto srcPoint = srcObject.toPointF();
+        return srcPoint.x() >= srcModel->getLeftTopViewPortPoint().x()
+                && srcPoint.x() <= srcModel->getRightBottomViewPortPoint().x()
+                && srcPoint.y() >= srcModel->getLeftTopViewPortPoint().y()
+                && srcPoint.y() <= srcModel->getRightBottomViewPortPoint().y();
+    }
+
+    return false;
 }

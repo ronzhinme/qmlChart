@@ -11,9 +11,12 @@ int main(int argc, char *argv[])
 
     //qml register
     QScopedPointer<PointsListModel> points(new PointsListModel());
+    QScopedPointer<FilterPointsProxyModel> pointsFilter(new FilterPointsProxyModel());
+    pointsFilter->setSourceModel(points.get());
     qmlRegisterSingletonInstance("DataModels", 1, 0, "PointsListModelInstance", points.get());
+    qmlRegisterSingletonInstance("DataModels", 1, 0, "PointsListFilterInstance", pointsFilter.get());
 
-    for(auto i = 0; i < 1000000; ++i)
+    for(auto i = 0; i < 10000; ++i)
     {
         points->insertPoint(points->rowCount(), QPointF(i*4.0, i/(i%2 ? 10.0 : -10.0)));
     }
