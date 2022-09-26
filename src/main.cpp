@@ -13,10 +13,9 @@ int main(int argc, char *argv[])
     QScopedPointer<PointsListModel> points(new PointsListModel());
     qmlRegisterSingletonInstance("DataModels", 1, 0, "PointsListModelInstance", points.get());
 
-    std::srand(std::time(nullptr)); // use current time as seed for random generator
     for(auto i = 0; i < 100000; ++i)
     {
-        points->insertPoint(points->rowCount(), QPointF(std::rand(), std::rand()));
+        points->insertPoint(points->rowCount(), QPointF(i*5, i * (i % 2 ? i : -i)));
     }
 
     const QUrl url(u"qrc:/qmlChart/main.qml"_qs);

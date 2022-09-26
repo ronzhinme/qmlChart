@@ -8,8 +8,18 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    Chart {
+    Flickable {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.verticalCenter
 
+        Chart {
+            model: PointsListModelInstance
+            anchors.fill: parent
+            lineColor: "lime"
+            lineWidth: 2.5
+        }
     }
 
     ListView {
@@ -17,7 +27,7 @@ Window {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        height: 200
+        anchors.top: parent.verticalCenter
         model: PointsListModelInstance
         delegate: Text {
             text: index + "\tx: " + display.x + "\ty: " + display.y
