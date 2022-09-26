@@ -7,6 +7,9 @@
 
 class FilterPointsProxyModel: public QSortFilterProxyModel
 {
+public:
+    Q_INVOKABLE QVariant getPoint(int index) const;
+
     // QSortFilterProxyModel interface
 protected:
     virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
@@ -15,6 +18,7 @@ protected:
 class PointsListModel : public QAbstractListModel
 {
     Q_OBJECT;
+    Q_PROPERTY(QSortFilterProxyModel* filterModel READ getFilterModel CONSTANT)
 public:
     PointsListModel();
     ~PointsListModel() = default;
@@ -28,6 +32,9 @@ public:
     Q_INVOKABLE void setRightBottomViewPortPoint(qreal x, qreal y);
     Q_INVOKABLE QPointF getLeftTopViewPortPoint() const;
     Q_INVOKABLE QPointF getRightBottomViewPortPoint() const;
+
+    QSortFilterProxyModel* getFilterModel() const;
+
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -38,7 +45,7 @@ private:
     QPointF rightBottomPoint_;
     QPointF leftTopViewPortPoint_;
     QPointF rightBottomViewPortPoint_;
-
+    QScopedPointer<FilterPointsProxyModel> filterModel_;
     void updateLeftTopPoint_(const QPointF &point);
     void updateRightBottomPoint_(const QPointF &point);
 };

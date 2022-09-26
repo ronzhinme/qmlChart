@@ -1,7 +1,9 @@
 #include "pointslistmodel.h"
 
 PointsListModel::PointsListModel()
+    : filterModel_(new FilterPointsProxyModel())
 {
+    filterModel_->setSourceModel(this);
 }
 
 void PointsListModel::insertPoint(int index, const QPointF &point)
@@ -54,12 +56,14 @@ void PointsListModel::setLeftTopViewPortPoint(qreal x, qreal y)
 {
     leftTopViewPortPoint_.setX(x);
     leftTopViewPortPoint_.setY(y);
+    filterModel_->setFilterFixedString("");
 }
 
 void PointsListModel::setRightBottomViewPortPoint(qreal x, qreal y)
 {
-    rightBottomPoint_.setX(x);
-    rightBottomPoint_.setY(y);
+    rightBottomViewPortPoint_.setX(x);
+    rightBottomViewPortPoint_.setY(y);
+    filterModel_->setFilterFixedString("");
 }
 
 QPointF PointsListModel::getLeftTopViewPortPoint() const
@@ -70,6 +74,11 @@ QPointF PointsListModel::getLeftTopViewPortPoint() const
 QPointF PointsListModel::getRightBottomViewPortPoint() const
 {
     return rightBottomViewPortPoint_;
+}
+
+QSortFilterProxyModel *PointsListModel::getFilterModel() const
+{
+    return filterModel_.get();
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const
@@ -119,11 +128,27 @@ void PointsListModel::updateRightBottomPoint_(const QPointF &point)
 }
 
 
+QVariant FilterPointsProxyModel::getPoint(int index) const
+{
+    const auto srcModel = static_cast<PointsListModel*>(sourceModel());
+    if(!srcModel)
+    {
+        return QVariant();
+    }
+
+    return srcModel->getPoint(index);
+}
+
 bool FilterPointsProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     Q_UNUSED(sourceParent);
 
     const auto srcModel = static_cast<PointsListModel*>(sourceModel());
+    if(!srcModel)
+    {
+        return false;
+    }
+
     const auto srcObject = srcModel->getPoint(sourceRow);
     if(srcObject.isValid())
     {

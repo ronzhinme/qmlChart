@@ -16,7 +16,9 @@ Canvas {
         context.strokeStyle = lineColor
 
         for( var i = 0; i < model.rowCount(); i++ ) {
-            var point = model.getPoint(i)
+            var index = model.index(i,0)
+            var point = model.data(index);
+
             point.y = point.y + (isYCentred ? height / 2: 0)
             if(i === 0) {
                 context.moveTo(point.x, point.y)
@@ -26,6 +28,5 @@ Canvas {
         }
 
         context.stroke()
-        console.log("======== done ! ===========")
     }
 }

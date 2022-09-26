@@ -9,28 +9,26 @@ Window {
     title: qsTr("Hello World")
 
     onWidthChanged: {
-        PointsListModelInstance.setLeftTopViewPortPoint(0, 0)
-        PointsListModelInstance.setRightBottomViewPortPoint(width, height)
+        PointsListModelInstance.setLeftTopViewPortPoint(0, -height/2)
+        PointsListModelInstance.setRightBottomViewPortPoint(width, height/2)
     }
 
     onHeightChanged: {
-        PointsListModelInstance.setLeftTopViewPortPoint(0, 0)
-        PointsListModelInstance.setRightBottomViewPortPoint(width, height)
+        PointsListModelInstance.setLeftTopViewPortPoint(0, -height/2)
+        PointsListModelInstance.setRightBottomViewPortPoint(width, height/2)
     }
 
-    Flickable {
+    Chart {
+        id: chart
+        model: PointsListModelInstance.filterModel
         anchors.fill: parent
+        lineColor: "lime"
+        lineWidth: 2.5
 
-        Chart {
-            model: PointsListFilterInstance
-            anchors.fill: parent
-            lineColor: "lime"
-            lineWidth: 2.5
-        }        
     }
 
     Component.onCompleted: {
-        PointsListModelInstance.setLeftTopViewPortPoint(0, 0)
-        PointsListModelInstance.setRightBottomViewPortPoint(width, height)
+        PointsListModelInstance.setLeftTopViewPortPoint(0, -height/2)
+        PointsListModelInstance.setRightBottomViewPortPoint(width, height/2)
     }
 }
