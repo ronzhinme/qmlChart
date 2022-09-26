@@ -13,9 +13,9 @@ int main(int argc, char *argv[])
     QScopedPointer<PointsListModel> points(new PointsListModel());
     qmlRegisterSingletonInstance("DataModels", 1, 0, "PointsListModelInstance", points.get());
 
-    for(auto i = 0; i < 100000; ++i)
+    for(auto i = 0; i < 1000000; ++i)
     {
-        points->insertPoint(points->rowCount(), QPointF(i*5, i * (i % 2 ? i : -i)));
+        points->insertPoint(points->rowCount(), QPointF(i*4.0, i/(i%2 ? 10.0 : -10.0)));
     }
 
     const QUrl url(u"qrc:/qmlChart/main.qml"_qs);
