@@ -1,48 +1,31 @@
 import QtQuick
 
 Canvas {
-    property bool isCurve : false
+    property bool isCurve: false
+    property var model: undefined
+    property color lineColor: Qt.rgba(0,0,0)
+    property real lineWidth: 1
+    property bool isYCentred : true
 
-    width: 400
-    height: 200
     contextType: "2d"
     renderStrategy: Canvas.Threaded
 
-    Path {
-        id: myPath
-        startX: 0; startY: 100
-
-        PathLine { x: 75; y: 75 }
-        PathLine { x: 200; y: 150 }
-        PathLine { x: 325; y: 25 }
-        PathLine { x: 370; y: 100 }
-        PathLine { x: 400; y: 100 }
-    }
-
-    Path {
-        id: myPathCurved
-        startX: 0; startY: 100
-
-        PathCurve { x: 75; y: 75 }
-        PathCurve { x: 200; y: 150 }
-        PathCurve { x: 325; y: 25 }
-        PathCurve { x: 370; y: 100 }
-        PathCurve { x: 400; y: 100 }
-    }
-
     onPaint: {
         context.reset()
-        context.lineWidth = 2.3
-        context.strokeStyle = Qt.rgba(.4,.6,.8)
-        context.path = isCurve ? myPathCurved : myPath
-        context.stroke()
-    }
+        context.lineWidth = lineWidth
+        context.strokeStyle = lineColor
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            parent.isCurve = !parent.isCurve
-            parent.requestPaint()
+        for( var i = 0; i < model.rowCount(); i++ ) {
+            var point = model.getPoint(i)
+            point.y = point.y + (isYCentred ? height / 2: 0)
+            if(i === 0) {
+                context.moveTo(point.x, point.y)
+            }
+
+            context.lineTo(point.x, point.y)
         }
+
+        context.stroke()
+        console.log("======== done ! ===========")
     }
 }
