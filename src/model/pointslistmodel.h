@@ -17,6 +17,7 @@ private:
     bool lineVisibleInViewPort_(const QPointF &lineBeginPoint, const QPointF &lineEndPoint) const;
     bool isIntersect_(const QPointF &a1, const QPointF &a2
                                     , const QPointF &b1, const QPointF &b2) const;
+    bool isInViewPort_(const QPointF &point) const;
 };
 
 class PointsListModel : public QAbstractListModel

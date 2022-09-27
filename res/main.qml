@@ -29,14 +29,18 @@ Window {
         }
 
         function updateViewPort() {
-            let x = chart.maxX * xPositionOffset
-            let y = chart.maxY * yPositionOffset
+            let x = chart.isXZeroCentered ? (2 * chart.maxX * xPositionOffset - chart.maxX)
+                                          : chart.maxX * xPositionOffset
+            let y = chart.isYZeroCentered ? (2 * chart.maxY * yPositionOffset - chart.maxY)
+                                          : chart.maxY * yPositionOffset
+            let x1 = x + chart.width
+            let y1 = y + chart.height
 
             PointsListModelInstance.setLeftTopViewPortPoint(x, y)
-            PointsListModelInstance.setRightBottomViewPortPoint(x + chart.width, y + chart.height)
+            PointsListModelInstance.setRightBottomViewPortPoint(x1, y1)
 
-            console.log("LT:",PointsListModelInstance.getLeftTopViewPortPoint().x, PointsListModelInstance.getLeftTopViewPortPoint().y);
-            console.log("RB:",PointsListModelInstance.getRightBottomViewPortPoint().x, PointsListModelInstance.getRightBottomViewPortPoint().y);
+//            console.log("LT:",PointsListModelInstance.getLeftTopViewPortPoint().x, PointsListModelInstance.getLeftTopViewPortPoint().y);
+//            console.log("RB:",PointsListModelInstance.getRightBottomViewPortPoint().x, PointsListModelInstance.getRightBottomViewPortPoint().y);
         }
 
         onWidthChanged: {

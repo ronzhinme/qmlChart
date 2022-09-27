@@ -14,8 +14,8 @@ Item {
     property color lineColor: Qt.rgba(0,0,0)
     property real lineWidth: 1
 
-    property bool isYZeroCentered : true
-    property bool isXZeroCentered : false
+    readonly property bool isYZeroCentered : minY < 0
+    readonly property bool isXZeroCentered : minX < 0
 
     onYPositionOffsetChanged: {
         canvas.requestPaint()
@@ -28,7 +28,7 @@ Item {
     Canvas {
         id: canvas
         contextType: "2d"
-        renderStrategy: Canvas.Threaded
+        renderStrategy: Canvas.Cooperative
         anchors.left: parent.left
         anchors.right: vScrollBar.left
         anchors.top: parent.top
@@ -44,12 +44,12 @@ Item {
                 var index = parent.model.index(i,0)
                 var point = parent.model.data(index);
 
+//                console.log("1=>", point.x, point.y)
                 point.y = point.y
-                        + (isYZeroCentered ? (canvas.height / 2) : 0)
-                        - (maxY * vScrollBar.position)
+                        - (isYZeroCentered ? (((2 * maxY * yPositionOffset) - maxY) - (height / 2)) : maxY * yPositionOffset)
                 point.x = point.x
-                        + (isXZeroCentered ? (canvas.width / 2) : 0)
-                        - (maxX * hScrollBar.position)
+                        - (isXZeroCentered ? (((2 * maxX * xPositionOffset) - maxX) - (width / 2)) : maxX * xPositionOffset)
+//                console.log("2=>", point.x, point.y)
 
                 if(i === 0) {
                     context.moveTo(point.x, point.y)
@@ -59,7 +59,6 @@ Item {
             }
 
             context.stroke()
-            console.log("done!");
         }
 
         onPainted: {
@@ -77,7 +76,7 @@ Item {
         }
 
         onHeightChanged: {
-            vScrollBar.size = canvas.height/((maxY-minY) * (isYZeroCentered ? 2 : 1))
+            vScrollBar.size = canvas.height / ((maxY-minY) * (isYZeroCentered ? 2 : 1))
         }
     }
 
@@ -87,6 +86,7 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: hScrollBar.top
+        position: isYZeroCentered ? 0.5 : 0
     }
 
     ScrollBar {
@@ -95,5 +95,6 @@ Item {
         anchors.right: vScrollBar.left
         anchors.left: parent.left
         anchors.bottom: parent.bottom
+        position: isXZeroCentered ? 0.5 : 0
     }
 }
