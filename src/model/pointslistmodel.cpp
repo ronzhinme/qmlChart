@@ -1,7 +1,9 @@
 #include "pointslistmodel.h"
 
 PointsListModel::PointsListModel()
+    : filterModel_(new FilterPointsProxyModel())
 {
+    filterModel_->setSourceModel(this);
 }
 
 void PointsListModel::insertPoint(int index, const QPointF &point)
@@ -50,6 +52,35 @@ QPointF PointsListModel::getRightBottomPoint() const
     return rightBottomPoint_;
 }
 
+void PointsListModel::setLeftTopViewPortPoint(qreal x, qreal y)
+{
+    leftTopViewPortPoint_.setX(x);
+    leftTopViewPortPoint_.setY(y);
+    filterModel_->setFilterFixedString("");
+}
+
+void PointsListModel::setRightBottomViewPortPoint(qreal x, qreal y)
+{
+    rightBottomViewPortPoint_.setX(x);
+    rightBottomViewPortPoint_.setY(y);
+    filterModel_->setFilterFixedString("");
+}
+
+QPointF PointsListModel::getLeftTopViewPortPoint() const
+{
+    return leftTopViewPortPoint_;
+}
+
+QPointF PointsListModel::getRightBottomViewPortPoint() const
+{
+    return rightBottomViewPortPoint_;
+}
+
+QSortFilterProxyModel *PointsListModel::getFilterModel() const
+{
+    return filterModel_.get();
+}
+
 int PointsListModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
@@ -94,4 +125,107 @@ void PointsListModel::updateRightBottomPoint_(const QPointF &point)
     {
         rightBottomPoint_.setY(point.y());
     }
+}
+
+
+QVariant FilterPointsProxyModel::getPoint(int index) const
+{
+    const auto srcModel = static_cast<PointsListModel*>(sourceModel());
+    if(!srcModel)
+    {
+        return QVariant();
+    }
+
+    return srcModel->getPoint(index);
+}
+
+bool FilterPointsProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    Q_UNUSED(sourceParent);
+
+    const auto srcModel = static_cast<PointsListModel*>(sourceModel());
+    if(!srcModel)
+    {
+        return false;
+    }
+
+    const auto srcObject = srcModel->getPoint(sourceRow);
+    if(!srcObject.isValid())
+    {
+        return false;
+    }
+
+    if(sourceRow > 0)
+    {
+        const auto srcPrevObject = srcModel->getPoint(sourceRow - 1);
+        if(!srcPrevObject.isValid())
+        {
+            return false;
+        }
+
+        if( lineVisibleInViewPort_(srcPrevObject.toPointF(), srcObject.toPointF()) )
+        {
+            return true;
+        }
+    }
+    else
+    {
+        return isInViewPort_(srcObject.toPointF());
+    }
+
+    return false;
+}
+
+bool FilterPointsProxyModel::lineVisibleInViewPort_(const QPointF &lineBeginPoint, const QPointF &lineEndPoint) const
+{
+    const auto srcModel = static_cast<PointsListModel*>(sourceModel());
+    if(!srcModel)
+    {
+        return false;
+    }
+
+    const auto ltPoint = srcModel->getLeftTopViewPortPoint();
+    const auto rbPoint = srcModel->getRightBottomViewPortPoint();
+    const auto rtPoint = QPointF(rbPoint.x(), ltPoint.y());
+    const auto lbPoint = QPointF(ltPoint.x(), rbPoint.y());
+
+    const auto isIntersectLeftBorder = isIntersect_(lineBeginPoint, lineEndPoint, ltPoint, lbPoint);
+    const auto isIntersectTopBorder = isIntersect_(lineBeginPoint, lineEndPoint, ltPoint, rtPoint);
+    const auto isIntersectRightBorder = isIntersect_(lineBeginPoint, lineEndPoint, rtPoint, rbPoint);
+    const auto isIntersectBottomBorder = isIntersect_(lineBeginPoint, lineEndPoint, lbPoint, rbPoint);
+
+    const auto isInsideViewPort = isInViewPort_(lineBeginPoint)
+            || isInViewPort_(lineEndPoint);
+
+//    qDebug() << __FUNCTION__ << isInsideViewPort << lineBeginPoint.x() << lineBeginPoint.y();
+
+    return isIntersectLeftBorder
+            || isIntersectTopBorder
+            || isIntersectRightBorder
+            || isIntersectBottomBorder
+            || isInsideViewPort;
+}
+
+bool FilterPointsProxyModel::isIntersect_(const QPointF &a1, const QPointF &a2, const QPointF &b1, const QPointF &b2) const
+{
+    const auto v1 =(b2.x()-b1.x())*(a1.y()-b1.y())-(b2.y()-b1.y())*(a1.x()-b1.x());
+    const auto v2 =(b2.x()-b1.x())*(a2.y()-b1.y())-(b2.y()-b1.y())*(a2.x()-b1.x());
+    const auto v3 =(a2.x()-a1.x())*(b1.y()-a1.y())-(a2.y()-a1.y())*(b1.x()-a1.x());
+    const auto v4 =(a2.x()-a1.x())*(b2.y()-a1.y())-(a2.y()-a1.y())*(b2.x()-a1.x());
+    return (v1*v2<0) && (v3*v4<0);
+}
+
+bool FilterPointsProxyModel::isInViewPort_(const QPointF &point) const
+{
+    const auto srcModel = static_cast<PointsListModel*>(sourceModel());
+    if(!srcModel)
+    {
+        return false;
+    }
+
+    const auto ltPoint = srcModel->getLeftTopViewPortPoint();
+    const auto rbPoint = srcModel->getRightBottomViewPortPoint();
+
+    return (point.x() >= ltPoint.x() && point.x() <= rbPoint.x())
+            || (point.x() >= ltPoint.x() && point.x() <= rbPoint.x());
 }

@@ -9,14 +9,15 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    //qml register
+    // prepare test data
     QScopedPointer<PointsListModel> points(new PointsListModel());
-    qmlRegisterSingletonInstance("DataModels", 1, 0, "PointsListModelInstance", points.get());
-
     for(auto i = 0; i < 1000000; ++i)
     {
-        points->insertPoint(points->rowCount(), QPointF(i*4.0, i/(i%2 ? 10.0 : -10.0)));
+        points->insertPoint(points->rowCount(), QPointF(i*4.0, i*(i%2 ? 4.0 : -4.0)));
     }
+
+    //qml register
+    qmlRegisterSingletonInstance("DataModels", 1, 0, "PointsListModelInstance", points.get());
 
     const QUrl url(u"qrc:/qmlChart/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

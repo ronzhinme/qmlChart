@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 
 import DataModels
 
@@ -8,37 +9,50 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    Flickable {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.verticalCenter
+    Chart {
+        id: chart
+        model: PointsListModelInstance.filterModel
+        anchors.fill: parent
+        lineColor: "orange"
+        lineWidth: 2.5
+        minX: PointsListModelInstance.getLeftTopPoint().x
+        maxX: PointsListModelInstance.getRightBottomPoint().x
+        minY: PointsListModelInstance.getLeftTopPoint().y
+        maxY: PointsListModelInstance.getRightBottomPoint().y
 
-        Chart {
-            model: PointsListModelInstance
-            anchors.fill: parent
-            lineColor: "lime"
-            lineWidth: 2.5
+        onYPositionOffsetChanged: {
+            updateViewPort()
         }
-    }
 
-    ListView {
-        id: listView
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.verticalCenter
-        model: PointsListModelInstance
-        delegate: Text {
-            text: index + "\tx: " + display.x + "\ty: " + display.y
+        onXPositionOffsetChanged: {
+            updateViewPort()
         }
-        clip: true
-    }
 
-    Rectangle {
-        color: "transparent"
-        border.color: "black"
-        border.width: 1
-        anchors.fill: listView
+        function updateViewPort() {
+            let x = chart.isXZeroCentered ? (2 * chart.maxX * xPositionOffset - chart.maxX)
+                                          : chart.maxX * xPositionOffset
+            let y = chart.isYZeroCentered ? (2 * chart.maxY * yPositionOffset - chart.maxY)
+                                          : chart.maxY * yPositionOffset
+            let x1 = x + chart.width
+            let y1 = y + chart.height
+
+            PointsListModelInstance.setLeftTopViewPortPoint(x, y)
+            PointsListModelInstance.setRightBottomViewPortPoint(x1, y1)
+
+//            console.log("LT:",PointsListModelInstance.getLeftTopViewPortPoint().x, PointsListModelInstance.getLeftTopViewPortPoint().y);
+//            console.log("RB:",PointsListModelInstance.getRightBottomViewPortPoint().x, PointsListModelInstance.getRightBottomViewPortPoint().y);
+        }
+
+        onWidthChanged: {
+            updateViewPort()
+        }
+
+        onHeightChanged: {
+            updateViewPort()
+        }
+
+        Component.onCompleted: {
+            updateViewPort()
+        }
     }
 }
