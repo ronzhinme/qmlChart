@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 
 import DataModels
 
@@ -8,27 +9,46 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    onWidthChanged: {
-        PointsListModelInstance.setLeftTopViewPortPoint(0, -height/2)
-        PointsListModelInstance.setRightBottomViewPortPoint(width, height/2)
-    }
-
-    onHeightChanged: {
-        PointsListModelInstance.setLeftTopViewPortPoint(0, -height/2)
-        PointsListModelInstance.setRightBottomViewPortPoint(width, height/2)
-    }
-
     Chart {
         id: chart
         model: PointsListModelInstance.filterModel
         anchors.fill: parent
-        lineColor: "lime"
+        lineColor: "orange"
         lineWidth: 2.5
+        minX: PointsListModelInstance.getLeftTopPoint().x
+        maxX: PointsListModelInstance.getRightBottomPoint().x
+        minY: PointsListModelInstance.getLeftTopPoint().y
+        maxY: PointsListModelInstance.getRightBottomPoint().y
 
-    }
+        onYPositionOffsetChanged: {
+            updateViewPort()
+        }
 
-    Component.onCompleted: {
-        PointsListModelInstance.setLeftTopViewPortPoint(0, -height/2)
-        PointsListModelInstance.setRightBottomViewPortPoint(width, height/2)
+        onXPositionOffsetChanged: {
+            updateViewPort()
+        }
+
+        function updateViewPort() {
+            let x = chart.maxX * xPositionOffset
+            let y = chart.maxY * yPositionOffset
+
+            PointsListModelInstance.setLeftTopViewPortPoint(x, y)
+            PointsListModelInstance.setRightBottomViewPortPoint(x + chart.width, y + chart.height)
+
+            console.log("LT:",PointsListModelInstance.getLeftTopViewPortPoint().x, PointsListModelInstance.getLeftTopViewPortPoint().y);
+            console.log("RB:",PointsListModelInstance.getRightBottomViewPortPoint().x, PointsListModelInstance.getRightBottomViewPortPoint().y);
+        }
+
+        onWidthChanged: {
+            updateViewPort()
+        }
+
+        onHeightChanged: {
+            updateViewPort()
+        }
+
+        Component.onCompleted: {
+            updateViewPort()
+        }
     }
 }

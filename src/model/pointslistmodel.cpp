@@ -150,14 +150,55 @@ bool FilterPointsProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &
     }
 
     const auto srcObject = srcModel->getPoint(sourceRow);
-    if(srcObject.isValid())
+    if(sourceRow > 0)
     {
-        const auto srcPoint = srcObject.toPointF();
-        return srcPoint.x() >= srcModel->getLeftTopViewPortPoint().x()
-                && srcPoint.x() <= srcModel->getRightBottomViewPortPoint().x()
-                && srcPoint.y() >= srcModel->getLeftTopViewPortPoint().y()
-                && srcPoint.y() <= srcModel->getRightBottomViewPortPoint().y();
+        const auto srcPrevObject = srcModel->getPoint(sourceRow - 1);
+        if(!srcObject.isValid() || !srcPrevObject.isValid())
+        {
+            return false;
+        }
+
+        if( lineVisibleInViewPort_(srcPrevObject.toPointF(), srcObject.toPointF()) )
+        {
+            return true;
+        }
     }
 
     return false;
+}
+
+bool FilterPointsProxyModel::lineVisibleInViewPort_(const QPointF &lineBeginPoint, const QPointF &lineEndPoint) const
+{
+    const auto srcModel = static_cast<PointsListModel*>(sourceModel());
+    if(!srcModel)
+    {
+        return false;
+    }
+
+    const auto ltPoint = srcModel->getLeftTopViewPortPoint();
+    const auto rbPoint = srcModel->getRightBottomViewPortPoint();
+
+    const auto isIntersectLeftBorder = isIntersect_(lineBeginPoint, lineEndPoint, ltPoint, QPointF(ltPoint.x(), rbPoint.y()));
+    const auto isIntersectTopBorder = isIntersect_(lineBeginPoint, lineEndPoint, ltPoint, QPointF(rbPoint.x(), ltPoint.y()));
+    const auto isIntersectRightBorder = isIntersect_(lineBeginPoint, lineEndPoint, QPointF(rbPoint.x(), ltPoint.y()), QPointF(rbPoint.x(), rbPoint.y()));
+    const auto isIntersectBottomBorder = isIntersect_(lineBeginPoint, lineEndPoint, QPointF(ltPoint.x(), rbPoint.y()), QPointF(rbPoint.x(), rbPoint.y()));
+    const auto isInsideViewPort = lineBeginPoint.x() >= ltPoint.x()
+            && lineEndPoint.x() <= rbPoint.x()
+            && lineBeginPoint.y() >= ltPoint.y()
+            && lineEndPoint.y() <= rbPoint.y();
+
+    return isIntersectLeftBorder
+            || isIntersectTopBorder
+            || isIntersectRightBorder
+            || isIntersectBottomBorder
+            || isInsideViewPort;
+}
+
+bool FilterPointsProxyModel::isIntersect_(const QPointF &a1, const QPointF &a2, const QPointF &b1, const QPointF &b2) const
+{
+    const auto v1 =(b2.x()-b1.x())*(a1.y()-b1.y())-(b2.y()-b1.y())*(a1.x()-b1.x());
+    const auto v2 =(b2.x()-b1.x())*(a2.y()-b1.y())-(b2.y()-b1.y())*(a2.x()-b1.x());
+    const auto v3 =(a2.x()-a1.x())*(b1.y()-a1.y())-(a2.y()-a1.y())*(b1.x()-a1.x());
+    const auto v4 =(a2.x()-a1.x())*(b2.y()-a1.y())-(a2.y()-a1.y())*(b2.x()-a1.x());
+    return (v1*v2<0) && (v3*v4<0);
 }
