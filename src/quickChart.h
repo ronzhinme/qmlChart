@@ -10,8 +10,8 @@ class Graph : public QQuickItem
     Q_PROPERTY(QAbstractListModel* model READ getModel WRITE setModel NOTIFY modelChanged);
     QML_NAMED_ELEMENT(QuickChart);
 public:
-    Graph();
-    ~Graph() = default;
+    Graph(QQuickItem *parent = nullptr);
+    ~Graph();
 
     QAbstractListModel* getModel() const;
     void setModel(QAbstractListModel* val);
@@ -21,7 +21,7 @@ signals:
     // QQuickItem interface
 protected:
     virtual void geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry) override;
-    virtual QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
+    virtual QSGNode *updatePaintNode(QSGNode *node, UpdatePaintNodeData *) override;
 private:
     QPointer<QAbstractListModel> model_;
 };

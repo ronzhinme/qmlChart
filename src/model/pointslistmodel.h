@@ -39,7 +39,8 @@ public:
     Q_INVOKABLE QPointF getRightBottomViewPortPoint() const;
 
     QSortFilterProxyModel* getFilterModel() const;
-
+    QList<QPointF> getPoints() const;
+    Q_INVOKABLE void updateViewPort(float width, float height, float xPosition, float yPosition);
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
