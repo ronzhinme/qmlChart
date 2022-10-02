@@ -51,19 +51,32 @@ QSGNode *Graph::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
     {
         pointsModel->updateViewPort(width(), height(), 0, 0);
 
-        QSGGeometry *geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 2);
+        const auto pointsCount = pointsModel->getFilterModel()->rowCount();
+        QSGGeometry *geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), pointsCount * 2);
         geometry->setDrawingMode(QSGGeometry::DrawLines);
         //geometry->setLineWidth(2.5);
 
         auto pointIndex = 0;
-        for(auto row = 0; row < pointsModel->getFilterModel()->rowCount(); ++row)
+        QPointF prevPoint;
+        for(auto row = 0; row < pointsCount; ++row)
         {
             auto index = pointsModel->getFilterModel()->index(row,0);
+            if(!index.isValid())
+            {
+                continue;
+            }
+
             auto value = pointsModel->getFilterModel()->data(index);
             if(value.isValid())
             {
                 auto point = value.toPointF();
+                if(pointIndex >0 && pointIndex % 2 == 0)
+                {
+                    geometry->vertexDataAsPoint2D()[pointIndex++].set(prevPoint.x(),prevPoint.y());
+                }
+
                 geometry->vertexDataAsPoint2D()[pointIndex++].set(point.x(),point.y());
+                prevPoint = point;
             }
         }
 
