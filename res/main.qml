@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 
 import DataModels
+import QuickChart
 
 Window {
     width: 640
@@ -9,50 +10,69 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    Chart {
-        id: chart
-        model: PointsListModelInstance.filterModel
-        anchors.fill: parent
-        lineColor: "orange"
-        lineWidth: 2.5
-        minX: PointsListModelInstance.getLeftTopPoint().x
-        maxX: PointsListModelInstance.getRightBottomPoint().x
-        minY: PointsListModelInstance.getLeftTopPoint().y
-        maxY: PointsListModelInstance.getRightBottomPoint().y
+    property real hPos: 0
+    property real vPos: 0
 
-        onYPositionOffsetChanged: {
-            updateViewPort()
-        }
+    QuickChart {
+        id: quickChart
+        model: PointsListModelInstance
+        anchors.bottom: hScroll.top
+        anchors.right: vScroll.left
+        anchors.top: parent.top
+        anchors.left: parent.left
 
-        onXPositionOffsetChanged: {
-            updateViewPort()
-        }
+        Component.onCompleted: {
+            var ltPoint = PointsListModelInstance.getLeftTopPoint()
+            var rbPoint = PointsListModelInstance.getRightBottomPoint()
 
-        function updateViewPort() {
-            let x = chart.isXZeroCentered ? (2 * chart.maxX * xPositionOffset - chart.maxX)
-                                          : chart.maxX * xPositionOffset
-            let y = chart.isYZeroCentered ? (2 * chart.maxY * yPositionOffset - chart.maxY)
-                                          : chart.maxY * yPositionOffset
-            let x1 = x + chart.width
-            let y1 = y + chart.height
+            hPos = ltPoint.x < 0 ? 0.5 : 0
+            vPos = ltPoint.y < 0 ? 0.5 : 0
 
-            PointsListModelInstance.setLeftTopViewPortPoint(x, y)
-            PointsListModelInstance.setRightBottomViewPortPoint(x1, y1)
-
-//            console.log("LT:",PointsListModelInstance.getLeftTopViewPortPoint().x, PointsListModelInstance.getLeftTopViewPortPoint().y);
-//            console.log("RB:",PointsListModelInstance.getRightBottomViewPortPoint().x, PointsListModelInstance.getRightBottomViewPortPoint().y);
+            PointsListModelInstance.updateViewPort(width
+                                                   , height
+                                                   , hPos
+                                                   , vPos)
         }
 
         onWidthChanged: {
-            updateViewPort()
+            var ltPoint = PointsListModelInstance.getLeftTopPoint()
+            var rbPoint = PointsListModelInstance.getRightBottomPoint()
+
+            hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1))
         }
 
         onHeightChanged: {
-            updateViewPort()
-        }
+            var ltPoint = PointsListModelInstance.getLeftTopPoint()
+            var rbPoint = PointsListModelInstance.getRightBottomPoint()
 
-        Component.onCompleted: {
-            updateViewPort()
+            vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1))
         }
     }
+
+    ScrollBar {
+        id: hScroll
+        orientation: Qt.Horizontal
+        anchors.left: parent.left
+        anchors.right: vScroll.left
+        anchors.bottom: parent.bottom
+        position: hPos
+
+        onPositionChanged: {
+            PointsListModelInstance.xPosition = position
+        }
+    }
+
+    ScrollBar {
+        id: vScroll
+        orientation: Qt.Vertical
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: hScroll.top
+        position: vPos
+
+        onPositionChanged: {
+            PointsListModelInstance.yPosition = position
+        }
+    }
+
 }

@@ -81,6 +81,54 @@ QSortFilterProxyModel *PointsListModel::getFilterModel() const
     return filterModel_.get();
 }
 
+QList<QPointF> PointsListModel::getPoints() const
+{
+    return points_;
+}
+
+void PointsListModel::updateViewPort(float width, float height, float xPosition, float yPosition)
+{
+    const auto minX = getLeftTopPoint().x();
+    const auto maxX = getRightBottomPoint().x();
+    const auto minY = getLeftTopPoint().y();
+    const auto maxY = getRightBottomPoint().y();
+
+    const auto x = minX < 0 ? (2 * maxX * xPosition - maxX)
+                            : maxX * xPosition;
+    const auto y = minY < 0 ? (2 * maxY * yPosition - maxY)
+                            : maxY * yPosition;
+
+    const auto x1 = x + width;
+    const auto y1 = y + height;
+
+    setLeftTopViewPortPoint(x, y);
+    setRightBottomViewPortPoint(x1, y1);
+    setXPosition(xPosition);
+    setYPosition(yPosition);
+}
+
+qreal PointsListModel::getXPosition() const
+{
+    return xyPosition_.x();
+}
+
+qreal PointsListModel::getYPosition() const
+{
+    return xyPosition_.y();
+}
+
+void PointsListModel::setYPosition(qreal val)
+{
+    xyPosition_.setY(val);
+    emit sigPositionChanged(xyPosition_.x(), xyPosition_.y());
+}
+
+void PointsListModel::setXPosition(qreal val)
+{
+    xyPosition_.setX(val);
+    emit sigPositionChanged(xyPosition_.x(), xyPosition_.y());
+}
+
 int PointsListModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
