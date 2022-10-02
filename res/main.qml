@@ -15,7 +15,6 @@ Window {
 
     QuickChart {
         id: quickChart
-        anchors.fill: parent
         model: PointsListModelInstance
         anchors.bottom: hScroll.top
         anchors.right: vScroll.left
@@ -24,6 +23,8 @@ Window {
 
         Component.onCompleted: {
             var ltPoint = PointsListModelInstance.getLeftTopPoint()
+            var rbPoint = PointsListModelInstance.getRightBottomPoint()
+
             hPos = ltPoint.x < 0 ? 0.5 : 0
             vPos = ltPoint.y < 0 ? 0.5 : 0
 
@@ -31,6 +32,20 @@ Window {
                                                    , height
                                                    , hPos
                                                    , vPos)
+        }
+
+        onWidthChanged: {
+            var ltPoint = PointsListModelInstance.getLeftTopPoint()
+            var rbPoint = PointsListModelInstance.getRightBottomPoint()
+
+            hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1))
+        }
+
+        onHeightChanged: {
+            var ltPoint = PointsListModelInstance.getLeftTopPoint()
+            var rbPoint = PointsListModelInstance.getRightBottomPoint()
+
+            vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1))
         }
     }
 
@@ -52,7 +67,7 @@ Window {
         orientation: Qt.Vertical
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        anchors.bottom: hScroll.top
         position: vPos
 
         onPositionChanged: {

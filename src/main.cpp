@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     QScopedPointer<PointsListModel> points(new PointsListModel());
     for(auto i = 0; i < 1000000; ++i)
     {
-        points->insertPoint(points->rowCount(), QPointF(i*4.0, i*(i%2 ? 4.0 : -4.0)));
+        points->insertPoint(points->rowCount(), QPointF(i*8.0, i*(i%2 ? 4.0 : -4.0)));
     }
 
     //qml register
