@@ -21,9 +21,33 @@ QAbstractListModel *Graph::getModel() const
 
 void Graph::setModel(QAbstractListModel *val)
 {
+    if(model_)
+    {
+        const auto pointsModel = static_cast<PointsListModel*>(model_.get());
+        if(pointsModel)
+        {
+            disconnect(pointsModel
+                    , &PointsListModel::sigPositionChanged
+                    , this
+                    , &Graph::onPositionChanged_);
+        }
+    }
+
     model_ = val;
     emit modelChanged();
     update();
+
+    if(model_)
+    {
+        const auto pointsModel = static_cast<PointsListModel*>(model_.get());
+        if(pointsModel)
+        {
+            connect(pointsModel
+                    , &PointsListModel::sigPositionChanged
+                    , this
+                    , &Graph::onPositionChanged_);
+        }
+    }
 }
 
 
@@ -58,10 +82,10 @@ QSGNode *Graph::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
         const auto maxX = pointsModel->getRightBottomPoint().x();
         const auto minY = pointsModel->getLeftTopPoint().y();
         const auto maxY = pointsModel->getRightBottomPoint().y();
-        pointsModel->updateViewPort(width(), height(), minX < 0 ? 0.5 : 0, minY < 0 ? 0.5 : 0);
-
         const auto xPosition = pointsModel->getXPosition();
         const auto yPosition = pointsModel->getYPosition();
+        pointsModel->updateViewPort(width(), height(), xPosition, yPosition);
+
 
         const auto pointsCount = pointsModel->getFilterModel()->rowCount();
         QSGGeometry *geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), pointsCount * 2);
@@ -105,4 +129,9 @@ QSGNode *Graph::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
     }
 
     return n;
+}
+
+void Graph::onPositionChanged_()
+{
+    update();
 }

@@ -24,6 +24,8 @@ protected:
     virtual QSGNode *updatePaintNode(QSGNode *node, UpdatePaintNodeData *) override;
 private:
     QPointer<QAbstractListModel> model_;
+private slots:
+    void onPositionChanged_();
 };
 
 #endif // QUICKCHART_H
