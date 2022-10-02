@@ -23,7 +23,9 @@ private:
 class PointsListModel : public QAbstractListModel
 {
     Q_OBJECT;
-    Q_PROPERTY(QSortFilterProxyModel* filterModel READ getFilterModel CONSTANT)
+    Q_PROPERTY(QSortFilterProxyModel* filterModel READ getFilterModel CONSTANT);
+    Q_PROPERTY(qreal xPosition READ getXPosition WRITE setXPosition NOTIFY sigPositionChanged);
+    Q_PROPERTY(qreal yPosition READ getYPosition WRITE setYPosition NOTIFY sigPositionChanged);
 public:
     PointsListModel();
     ~PointsListModel() = default;
@@ -41,6 +43,12 @@ public:
     QSortFilterProxyModel* getFilterModel() const;
     QList<QPointF> getPoints() const;
     Q_INVOKABLE void updateViewPort(float width, float height, float xPosition, float yPosition);
+
+    qreal getXPosition() const;
+    qreal getYPosition() const;
+    void setYPosition(qreal val);
+    void setXPosition(qreal val);
+
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -54,6 +62,9 @@ private:
     QScopedPointer<FilterPointsProxyModel> filterModel_;
     void updateLeftTopPoint_(const QPointF &point);
     void updateRightBottomPoint_(const QPointF &point);
+    QPointF xyPosition_;
+signals:
+    void sigPositionChanged(qreal x, qreal y);
 };
 
 #endif // POINTSLISTMODEL_H

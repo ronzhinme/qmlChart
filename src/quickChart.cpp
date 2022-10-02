@@ -35,6 +35,11 @@ void Graph::geometryChange(const QRectF &newGeometry, const QRectF &oldGeometry)
 
 QSGNode *Graph::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
 {
+    if(!model_)
+    {
+        return nullptr;
+    }
+
     QSGGeometryNode *n = static_cast<QSGGeometryNode *>(node);
     const auto pointsModel = static_cast<PointsListModel*>(model_.get());
 
@@ -49,7 +54,14 @@ QSGNode *Graph::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
 
     if (n == nullptr && pointsModel != nullptr)
     {
-        pointsModel->updateViewPort(width(), height(), 0, 0);
+        const auto minX = pointsModel->getLeftTopPoint().x();
+        const auto maxX = pointsModel->getRightBottomPoint().x();
+        const auto minY = pointsModel->getLeftTopPoint().y();
+        const auto maxY = pointsModel->getRightBottomPoint().y();
+        pointsModel->updateViewPort(width(), height(), minX < 0 ? 0.5 : 0, minY < 0 ? 0.5 : 0);
+
+        const auto xPosition = pointsModel->getXPosition();
+        const auto yPosition = pointsModel->getYPosition();
 
         const auto pointsCount = pointsModel->getFilterModel()->rowCount();
         QSGGeometry *geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), pointsCount * 2);
@@ -69,14 +81,19 @@ QSGNode *Graph::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
             auto value = pointsModel->getFilterModel()->data(index);
             if(value.isValid())
             {
-                auto point = value.toPointF();
+                const auto point = value.toPointF();
+                const auto x = point.x() - (minX < 0 ? (((2 * maxX * xPosition) - maxX) - (width()/2))
+                                                  : maxX * xPosition);
+                const auto y = point.y() - (minY < 0 ? (((2 * maxY * yPosition) - maxY) - (height()/2))
+                                                   : maxY * yPosition);
+
                 if(pointIndex >0 && pointIndex % 2 == 0)
                 {
                     geometry->vertexDataAsPoint2D()[pointIndex++].set(prevPoint.x(),prevPoint.y());
                 }
 
-                geometry->vertexDataAsPoint2D()[pointIndex++].set(point.x(),point.y());
-                prevPoint = point;
+                geometry->vertexDataAsPoint2D()[pointIndex++].set(x,y);
+                prevPoint = QPointF(x,y);
             }
         }
 

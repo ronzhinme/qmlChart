@@ -103,6 +103,30 @@ void PointsListModel::updateViewPort(float width, float height, float xPosition,
 
     setLeftTopViewPortPoint(x, y);
     setRightBottomViewPortPoint(x1, y1);
+    setXPosition(xPosition);
+    setYPosition(yPosition);
+}
+
+qreal PointsListModel::getXPosition() const
+{
+    return xyPosition_.x();
+}
+
+qreal PointsListModel::getYPosition() const
+{
+    return xyPosition_.y();
+}
+
+void PointsListModel::setYPosition(qreal val)
+{
+    xyPosition_.setY(val);
+    emit sigPositionChanged(xyPosition_.x(), xyPosition_.y());
+}
+
+void PointsListModel::setXPosition(qreal val)
+{
+    xyPosition_.setX(val);
+    emit sigPositionChanged(xyPosition_.x(), xyPosition_.y());
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const
