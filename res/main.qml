@@ -28,24 +28,15 @@ Window {
             hPos = ltPoint.x < 0 ? 0.5 : 0
             vPos = ltPoint.y < 0 ? 0.5 : 0
 
-            PointsListModelInstance.updateViewPort(width
-                                                   , height
-                                                   , hPos
-                                                   , vPos)
+            PointsListModelInstance.updateViewPort(width, height, hPos, vPos)
         }
 
         onWidthChanged: {
-            var ltPoint = PointsListModelInstance.getLeftTopPoint()
-            var rbPoint = PointsListModelInstance.getRightBottomPoint()
-
-            hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1))
+            updateScrollBarSize()
         }
 
         onHeightChanged: {
-            var ltPoint = PointsListModelInstance.getLeftTopPoint()
-            var rbPoint = PointsListModelInstance.getRightBottomPoint()
-
-            vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1))
+            updateScrollBarSize()
         }
     }
 
@@ -72,6 +63,21 @@ Window {
 
         onPositionChanged: {
             PointsListModelInstance.yPosition = position
+        }
+    }
+
+    function updateScrollBarSize() {
+        var ltPoint = PointsListModelInstance.getLeftTopPoint()
+        var rbPoint = PointsListModelInstance.getRightBottomPoint()
+
+        hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1))
+        vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1))
+    }
+
+    Connections {
+        target: PointsListModelInstance
+        onDataChanged: {
+            updateScrollBarSize()
         }
     }
 

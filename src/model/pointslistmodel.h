@@ -26,6 +26,7 @@ class PointsListModel : public QAbstractListModel
     Q_PROPERTY(QSortFilterProxyModel* filterModel READ getFilterModel CONSTANT);
     Q_PROPERTY(qreal xPosition READ getXPosition WRITE setXPosition NOTIFY sigPositionChanged);
     Q_PROPERTY(qreal yPosition READ getYPosition WRITE setYPosition NOTIFY sigPositionChanged);
+    Q_PROPERTY(bool autoScroll READ getAutoScroll WRITE setAutoScroll NOTIFY sigAutoScrollChanged);
 public:
     PointsListModel();
     ~PointsListModel() = default;
@@ -46,9 +47,11 @@ public:
 
     qreal getXPosition() const;
     qreal getYPosition() const;
+    bool getAutoScroll() const;
+
     void setYPosition(qreal val);
     void setXPosition(qreal val);
-
+    void setAutoScroll(bool val);
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -63,8 +66,12 @@ private:
     void updateLeftTopPoint_(const QPointF &point);
     void updateRightBottomPoint_(const QPointF &point);
     QPointF xyPosition_;
+    bool autoScroll_;
 signals:
     void sigPositionChanged(qreal x, qreal y);
+    void sigAutoScrollChanged();
+private slots:
+    void onPointsChanged_();
 };
 
 #endif // POINTSLISTMODEL_H
