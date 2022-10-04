@@ -1,8 +1,18 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickView>
+#include <QObject>
+#include <QTimer>
 
 #include "model/pointslistmodel.h"
+
+QScopedPointer<PointsListModel> points(new PointsListModel());
+
+void onTimerTriggered()
+{
+    const auto count = points->rowCount();
+    points->insertPoint(count, QPointF(count*8.0, count*(count%2 ? 4.0 : -4.0)));
+}
 
 int main(int argc, char *argv[])
 {
@@ -11,19 +21,12 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     // prepare test data
-    QScopedPointer<PointsListModel> points(new PointsListModel());
-    for(auto i = 0; i < 1000000; ++i)
-    {
-        points->insertPoint(points->rowCount(), QPointF(i*8.0, i*(i%2 ? 4.0 : -4.0)));
-    }
+    QTimer timer;
+    QObject::connect(&timer, &QTimer::timeout, onTimerTriggered);
 
     //qml register
+    points->setAutoScrollX(true);
     qmlRegisterSingletonInstance("DataModels", 1, 0, "PointsListModelInstance", points.get());
-
-//    QQuickView view;
-//    view.setResizeMode(QQuickView::SizeRootObjectToView);
-//    view.setSource(QUrl("qrc:///qmlChart/main.qml"));
-//    view.show();
 
     const QUrl url(u"qrc:/qmlChart/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
@@ -33,5 +36,6 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
+    timer.start(5);
     return QGuiApplication::exec();
 }

@@ -8,6 +8,7 @@ SOURCES += \
 resources.prefix = /$${TARGET}
 RESOURCES += ./res/chart.qrc
 
+CONFIG += c++17
 CONFIG += qmltypes
 
 # Additional import path used to resolve QML modules in Qt Creator's code model

@@ -2,6 +2,7 @@
 
 PointsListModel::PointsListModel()
     : filterModel_(new FilterPointsProxyModel())
+    , autoScroll_(false, false)
 {
     filterModel_->setSourceModel(this);
 }
@@ -17,12 +18,17 @@ void PointsListModel::insertPoint(int index, const QPointF &point)
 
         points_.append(point);
         endInsertRows();
-        return;
+        onPointsChanged_();
+        emit dataChanged(this->index(index), this->index(rowCount()-1));
     }
-
-    beginInsertRows(QModelIndex(), index, index);
-    points_.insert(index, point);
-    endInsertRows();
+    else
+    {
+        beginInsertRows(QModelIndex(), index, index);
+        points_.insert(index, point);
+        endInsertRows();
+        onPointsChanged_();
+        emit dataChanged(this->index(index), this->index(index));
+    }
 }
 
 void PointsListModel::deletePoint(int index)
@@ -35,6 +41,7 @@ void PointsListModel::deletePoint(int index)
     beginRemoveRows(QModelIndex(), index, index);
     points_.removeAt(index);
     endRemoveRows();
+    onPointsChanged_();
 }
 
 QVariant PointsListModel::getPoint(int index) const
@@ -93,10 +100,10 @@ void PointsListModel::updateViewPort(float width, float height, float xPosition,
     const auto minY = getLeftTopPoint().y();
     const auto maxY = getRightBottomPoint().y();
 
-    const auto x = minX < 0 ? (2 * maxX * xPosition - maxX)
-                            : maxX * xPosition;
-    const auto y = minY < 0 ? (2 * maxY * yPosition - maxY)
-                            : maxY * yPosition;
+    const auto x = minX >= 0 ? maxX * xPosition
+                             : (2 * maxX * xPosition - maxX);
+    const auto y = minY >= 0 ? maxY * yPosition
+                             : (2 * maxY * yPosition - maxY);
 
     const auto x1 = x + width;
     const auto y1 = y + height;
@@ -117,6 +124,16 @@ qreal PointsListModel::getYPosition() const
     return xyPosition_.y();
 }
 
+bool PointsListModel::getAutoScrollX() const
+{
+    return autoScroll_.first;
+}
+
+bool PointsListModel::getAutoScrollY() const
+{
+    return autoScroll_.first;
+}
+
 void PointsListModel::setYPosition(qreal val)
 {
     xyPosition_.setY(val);
@@ -127,6 +144,18 @@ void PointsListModel::setXPosition(qreal val)
 {
     xyPosition_.setX(val);
     emit sigPositionChanged(xyPosition_.x(), xyPosition_.y());
+}
+
+void PointsListModel::setAutoScrollX(bool val)
+{
+    autoScroll_.first = val;
+    emit sigAutoScrollChanged(autoScroll_.first, autoScroll_.second);
+}
+
+void PointsListModel::setAutoScrollY(bool val)
+{
+    autoScroll_.second = val;
+    emit sigAutoScrollChanged(autoScroll_.first, autoScroll_.second);
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const
@@ -172,6 +201,50 @@ void PointsListModel::updateRightBottomPoint_(const QPointF &point)
     if(rightBottomPoint_.y() < point.y())
     {
         rightBottomPoint_.setY(point.y());
+    }
+}
+
+void PointsListModel::onPointsChanged_()
+{
+    if(autoScroll_.first
+            || autoScroll_.second)
+    {
+        const auto lastPointVar = getPoint(rowCount() - 1);
+        if(!lastPointVar.isValid())
+        {
+            return;
+        }
+
+        const auto lastPoint = lastPointVar.toPointF();
+        const auto minViewPoint = getLeftTopViewPortPoint();
+        const auto maxViewPoint = getRightBottomViewPortPoint();
+        const auto width = maxViewPoint.x() - minViewPoint.x();
+        const auto height = maxViewPoint.y() - minViewPoint.y();
+        const auto minValPoint = getLeftTopPoint();
+        const auto maxValPoint = getRightBottomPoint();
+
+        auto xPos = getXPosition();
+        auto yPos = getYPosition();
+
+        if(autoScroll_.first)
+        {
+            xPos = minValPoint.x() >= 0 ? 0.0 : 0.5;
+            xPos = lastPoint.x() >= width && lastPoint.x() >= maxValPoint.x()
+                    ? 1 - (width / (maxValPoint.x() * (minValPoint.x() >= 0 ? 1 : 2)))
+                    : xPos;
+            xPos = lastPoint.x() <= minValPoint.x() ? 0.0 : xPos;
+        }
+
+        if(autoScroll_.second)
+        {
+            yPos = minValPoint.y() >= 0 ? 0.0 : 0.5;
+            yPos = lastPoint.y() >= height && lastPoint.y() >= maxValPoint.y()
+                    ? 1 - (height / (maxValPoint.y() * (minValPoint.y() >= 0 ? 1 : 2)))
+                    : yPos;
+            yPos = lastPoint.y() <= minValPoint.y() ? 0.0 : yPos;
+        }
+
+        updateViewPort(width, height, xPos, yPos);
     }
 }
 
@@ -245,7 +318,7 @@ bool FilterPointsProxyModel::lineVisibleInViewPort_(const QPointF &lineBeginPoin
     const auto isInsideViewPort = isInViewPort_(lineBeginPoint)
             || isInViewPort_(lineEndPoint);
 
-//    qDebug() << __FUNCTION__ << isInsideViewPort << lineBeginPoint.x() << lineBeginPoint.y();
+    //    qDebug() << __FUNCTION__ << isInsideViewPort << lineBeginPoint.x() << lineBeginPoint.y();
 
     return isIntersectLeftBorder
             || isIntersectTopBorder
