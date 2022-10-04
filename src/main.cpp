@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     QObject::connect(&timer, &QTimer::timeout, onTimerTriggered);
 
     //qml register
-    points->setAutoScroll(true);
+    points->setAutoScrollX(true);
     qmlRegisterSingletonInstance("DataModels", 1, 0, "PointsListModelInstance", points.get());
 
     const QUrl url(u"qrc:/qmlChart/main.qml"_qs);
@@ -36,6 +36,6 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
-    timer.start(1000);
+    timer.start(5);
     return QGuiApplication::exec();
 }

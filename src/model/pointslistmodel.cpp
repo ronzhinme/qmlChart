@@ -2,6 +2,7 @@
 
 PointsListModel::PointsListModel()
     : filterModel_(new FilterPointsProxyModel())
+    , autoScroll_(false, false)
 {
     filterModel_->setSourceModel(this);
 }
@@ -123,9 +124,14 @@ qreal PointsListModel::getYPosition() const
     return xyPosition_.y();
 }
 
-bool PointsListModel::getAutoScroll() const
+bool PointsListModel::getAutoScrollX() const
 {
-    return autoScroll_;
+    return autoScroll_.first;
+}
+
+bool PointsListModel::getAutoScrollY() const
+{
+    return autoScroll_.first;
 }
 
 void PointsListModel::setYPosition(qreal val)
@@ -140,10 +146,16 @@ void PointsListModel::setXPosition(qreal val)
     emit sigPositionChanged(xyPosition_.x(), xyPosition_.y());
 }
 
-void PointsListModel::setAutoScroll(bool val)
+void PointsListModel::setAutoScrollX(bool val)
 {
-    autoScroll_ = val;
-    emit sigAutoScrollChanged();
+    autoScroll_.first = val;
+    emit sigAutoScrollChanged(autoScroll_.first, autoScroll_.second);
+}
+
+void PointsListModel::setAutoScrollY(bool val)
+{
+    autoScroll_.second = val;
+    emit sigAutoScrollChanged(autoScroll_.first, autoScroll_.second);
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const
@@ -194,14 +206,45 @@ void PointsListModel::updateRightBottomPoint_(const QPointF &point)
 
 void PointsListModel::onPointsChanged_()
 {
-    if(autoScroll_)
+    if(autoScroll_.first
+            || autoScroll_.second)
     {
+        const auto lastPointVar = getPoint(rowCount() - 1);
+        if(!lastPointVar.isValid())
+        {
+            return;
+        }
+
+        const auto lastPoint = lastPointVar.toPointF();
         const auto minViewPoint = getLeftTopViewPortPoint();
         const auto maxViewPoint = getRightBottomViewPortPoint();
         const auto width = maxViewPoint.x() - minViewPoint.x();
         const auto height = maxViewPoint.y() - minViewPoint.y();
-        const auto maxValuePoint = getRightBottomPoint();
-        const auto minValuePoint = getLeftTopPoint();
+        const auto minValPoint = getLeftTopPoint();
+        const auto maxValPoint = getRightBottomPoint();
+
+        auto xPos = getXPosition();
+        auto yPos = getYPosition();
+
+        if(autoScroll_.first)
+        {
+            xPos = minValPoint.x() >= 0 ? 0.0 : 0.5;
+            xPos = lastPoint.x() >= width && lastPoint.x() >= maxValPoint.x()
+                    ? 1 - (width / (maxValPoint.x() * (minValPoint.x() >= 0 ? 1 : 2)))
+                    : xPos;
+            xPos = lastPoint.x() <= minValPoint.x() ? 0.0 : xPos;
+        }
+
+        if(autoScroll_.second)
+        {
+            yPos = minValPoint.y() >= 0 ? 0.0 : 0.5;
+            yPos = lastPoint.y() >= height && lastPoint.y() >= maxValPoint.y()
+                    ? 1 - (height / (maxValPoint.y() * (minValPoint.y() >= 0 ? 1 : 2)))
+                    : yPos;
+            yPos = lastPoint.y() <= minValPoint.y() ? 0.0 : yPos;
+        }
+
+        updateViewPort(width, height, xPos, yPos);
     }
 }
 

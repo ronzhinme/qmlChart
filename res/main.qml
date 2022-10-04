@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 import DataModels
 import QuickChart
@@ -13,56 +14,85 @@ Window {
     property real hPos: 0
     property real vPos: 0
 
-    QuickChart {
-        id: quickChart
-        model: PointsListModelInstance
-        anchors.bottom: hScroll.top
-        anchors.right: vScroll.left
-        anchors.top: parent.top
-        anchors.left: parent.left
 
-        Component.onCompleted: {
-            var ltPoint = PointsListModelInstance.getLeftTopPoint()
-            var rbPoint = PointsListModelInstance.getRightBottomPoint()
 
-            hPos = ltPoint.x < 0 ? 0.5 : 0
-            vPos = ltPoint.y < 0 ? 0.5 : 0
+    ColumnLayout {
+        spacing: 5
+        anchors.fill: parent
 
-            PointsListModelInstance.updateViewPort(width, height, hPos, vPos)
+        RowLayout {
+            spacing: 10
+
+            CheckBox {
+                text: "Auto scroll X"
+                onCheckedChanged: {
+                    PointsListModelInstance.autoScrollX = checked
+                }
+                Component.onCompleted: {
+                    PointsListModelInstance.autoScrollX = false
+                }
+            }
+
+            CheckBox {
+                text: "Auto scroll Y"
+                onCheckedChanged: {
+                    PointsListModelInstance.autoScrollY = checked
+                }
+                Component.onCompleted: {
+                    PointsListModelInstance.autoScrollY = false
+                }
+            }
         }
 
-        onWidthChanged: {
-            updateScrollBarSize()
-        }
+        ColumnLayout {
+            RowLayout {
+                QuickChart {
+                    id: quickChart
+                    model: PointsListModelInstance
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-        onHeightChanged: {
-            updateScrollBarSize()
-        }
-    }
+                    Component.onCompleted: {
+                        var ltPoint = PointsListModelInstance.getLeftTopPoint()
+                        var rbPoint = PointsListModelInstance.getRightBottomPoint()
 
-    ScrollBar {
-        id: hScroll
-        orientation: Qt.Horizontal
-        anchors.left: parent.left
-        anchors.right: vScroll.left
-        anchors.bottom: parent.bottom
-        position: hPos
+                        hPos = ltPoint.x < 0 ? 0.5 : 0
+                        vPos = ltPoint.y < 0 ? 0.5 : 0
 
-        onPositionChanged: {
-            PointsListModelInstance.xPosition = position
-        }
-    }
+                        PointsListModelInstance.updateViewPort(width, height, hPos, vPos)
+                    }
 
-    ScrollBar {
-        id: vScroll
-        orientation: Qt.Vertical
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: hScroll.top
-        position: vPos
+                    onWidthChanged: {
+                        updateScrollBarSize()
+                    }
 
-        onPositionChanged: {
-            PointsListModelInstance.yPosition = position
+                    onHeightChanged: {
+                        updateScrollBarSize()
+                    }
+                }
+
+                ScrollBar {
+                    id: vScroll
+                    orientation: Qt.Vertical
+                    Layout.fillHeight: true
+                    position: vPos
+
+                    onPositionChanged: {
+                        PointsListModelInstance.yPosition = position
+                    }
+                }
+            }
+
+            ScrollBar {
+                id: hScroll
+                orientation: Qt.Horizontal
+                position: hPos
+                Layout.fillWidth: true
+
+                onPositionChanged: {
+                    PointsListModelInstance.xPosition = position
+                }
+            }
         }
     }
 
@@ -76,7 +106,7 @@ Window {
 
     Connections {
         target: PointsListModelInstance
-        onDataChanged: {
+        function onDataChanged() {
             updateScrollBarSize()
         }
     }

@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/qmlChart">
-        <file>Chart.qml</file>
         <file>main.qml</file>
     </qresource>
 </RCC>
