@@ -88,12 +88,13 @@ QSGNode *Graph::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
 
 
         const auto pointsCount = pointsModel->getFilterModel()->rowCount();
-        QSGGeometry *geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), pointsCount * 2);
-        geometry->setDrawingMode(QSGGeometry::DrawLines);
-        //geometry->setLineWidth(2.5);
+        QSGGeometry *geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), pointsCount);
+        geometry->setDrawingMode(QSGGeometry::DrawLineStrip);
+        geometry->setLineWidth(2.5);
 
+        const auto scaleX = pointsModel->getScaleRatioX();
+        const auto scaleY = pointsModel->getScaleRatioY();
         auto pointIndex = 0;
-        QPointF prevPoint;
         for(auto row = 0; row < pointsCount; ++row)
         {
             auto index = pointsModel->getFilterModel()->index(row,0);
@@ -111,13 +112,7 @@ QSGNode *Graph::updatePaintNode(QSGNode *node, UpdatePaintNodeData *)
                 const auto y = point.y() - (minY < 0 ? (((2 * maxY * yPosition) - maxY) - (height()/2))
                                                    : maxY * yPosition);
 
-                if(pointIndex >0 && pointIndex % 2 == 0)
-                {
-                    geometry->vertexDataAsPoint2D()[pointIndex++].set(prevPoint.x(),prevPoint.y());
-                }
-
-                geometry->vertexDataAsPoint2D()[pointIndex++].set(x,y);
-                prevPoint = QPointF(x,y);
+                geometry->vertexDataAsPoint2D()[pointIndex++].set(x * scaleX,y * scaleY);
             }
         }
 
