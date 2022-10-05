@@ -134,6 +134,16 @@ bool PointsListModel::getAutoScrollY() const
     return autoScroll_.first;
 }
 
+qreal PointsListModel::getScaleRatioX() const
+{
+    return scale_.x();
+}
+
+qreal PointsListModel::getScaleRatioY() const
+{
+    return scale_.y();
+}
+
 void PointsListModel::setYPosition(qreal val)
 {
     xyPosition_.setY(val);
@@ -156,6 +166,18 @@ void PointsListModel::setAutoScrollY(bool val)
 {
     autoScroll_.second = val;
     emit sigAutoScrollChanged(autoScroll_.first, autoScroll_.second);
+}
+
+void PointsListModel::setScaleRatioX(qreal val)
+{
+    scale_.setX(val);
+    emit sigScaleRatioChanged(scale_.x(), scale_.y());
+}
+
+void PointsListModel::setScaleRatioY(qreal val)
+{
+    scale_.setY(val);
+    emit sigScaleRatioChanged(scale_.x(), scale_.y());
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const
