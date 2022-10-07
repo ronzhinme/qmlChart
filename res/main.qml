@@ -14,10 +14,7 @@ Window {
     property real hPos: 0
     property real vPos: 0
 
-
-
     ColumnLayout {
-        spacing: 5
         anchors.fill: parent
 
         RowLayout {
@@ -42,6 +39,16 @@ Window {
                     PointsListModelInstance.autoScrollY = false
                 }
             }
+
+            TextField {
+                horizontalAlignment: Text.AlignHCenter
+                text: "1.0"
+                validator: DoubleValidator{bottom: -5; top: 5}
+                onEditingFinished: {
+                    PointsListModelInstance.scaleRatioX = parseFloat(text)
+                    PointsListModelInstance.scaleRatioY = parseFloat(text)
+                }
+            }
         }
 
         ColumnLayout {
@@ -49,6 +56,7 @@ Window {
                 QuickChart {
                     id: quickChart
                     model: PointsListModelInstance
+                    clip: true
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
@@ -68,6 +76,13 @@ Window {
 
                     onHeightChanged: {
                         updateScrollBarSize()
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color:"transparent"
+                        border.color:"gray"
+                        border.width: 1
                     }
                 }
 
@@ -99,9 +114,11 @@ Window {
     function updateScrollBarSize() {
         var ltPoint = PointsListModelInstance.getLeftTopPoint()
         var rbPoint = PointsListModelInstance.getRightBottomPoint()
+        var scaleX = PointsListModelInstance.scaleRatioX
+        var scaleY = PointsListModelInstance.scaleRatioY
 
-        hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1))
-        vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1))
+        hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1)) * scaleX
+        vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1)) * scaleY
     }
 
     Connections {

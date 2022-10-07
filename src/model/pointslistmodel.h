@@ -28,6 +28,8 @@ class PointsListModel : public QAbstractListModel
     Q_PROPERTY(qreal yPosition READ getYPosition WRITE setYPosition NOTIFY sigPositionChanged);
     Q_PROPERTY(bool autoScrollX READ getAutoScrollX WRITE setAutoScrollX NOTIFY sigAutoScrollChanged);
     Q_PROPERTY(bool autoScrollY READ getAutoScrollY WRITE setAutoScrollY NOTIFY sigAutoScrollChanged);
+    Q_PROPERTY(qreal scaleRatioX READ getScaleRatioX WRITE setScaleRatioX NOTIFY sigScaleRatioChanged);
+    Q_PROPERTY(qreal scaleRatioY READ getScaleRatioY WRITE setScaleRatioY NOTIFY sigScaleRatioChanged);
 public:
     PointsListModel();
     ~PointsListModel() = default;
@@ -50,11 +52,15 @@ public:
     qreal getYPosition() const;
     bool getAutoScrollX() const;
     bool getAutoScrollY() const;
+    qreal getScaleRatioX() const;
+    qreal getScaleRatioY() const;
 
     void setYPosition(qreal val);
     void setXPosition(qreal val);
     void setAutoScrollX(bool val);
     void setAutoScrollY(bool val);
+    void setScaleRatioX(qreal val);
+    void setScaleRatioY(qreal val);
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -70,9 +76,11 @@ private:
     void updateRightBottomPoint_(const QPointF &point);
     QPointF xyPosition_;
     QPair<bool, bool> autoScroll_;
+    QPointF scale_;
 signals:
     void sigPositionChanged(qreal x, qreal y);
     void sigAutoScrollChanged(bool x, bool y);
+    void sigScaleRatioChanged(qreal ratioX, qreal ratioY);
 private slots:
     void onPointsChanged_();
 };

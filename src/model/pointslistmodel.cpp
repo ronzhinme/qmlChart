@@ -3,6 +3,7 @@
 PointsListModel::PointsListModel()
     : filterModel_(new FilterPointsProxyModel())
     , autoScroll_(false, false)
+    , scale_(1.0,1.0)
 {
     filterModel_->setSourceModel(this);
 }
@@ -108,8 +109,8 @@ void PointsListModel::updateViewPort(float width, float height, float xPosition,
     const auto x1 = x + width;
     const auto y1 = y + height;
 
-    setLeftTopViewPortPoint(x, y);
-    setRightBottomViewPortPoint(x1, y1);
+    setLeftTopViewPortPoint(x * (1 / scale_.x()), y * (1 / scale_.y()));
+    setRightBottomViewPortPoint(x1 * (1 / scale_.x()), y1 * (1 / scale_.y()));
     setXPosition(xPosition);
     setYPosition(yPosition);
 }
@@ -134,6 +135,16 @@ bool PointsListModel::getAutoScrollY() const
     return autoScroll_.first;
 }
 
+qreal PointsListModel::getScaleRatioX() const
+{
+    return scale_.x();
+}
+
+qreal PointsListModel::getScaleRatioY() const
+{
+    return scale_.y();
+}
+
 void PointsListModel::setYPosition(qreal val)
 {
     xyPosition_.setY(val);
@@ -156,6 +167,18 @@ void PointsListModel::setAutoScrollY(bool val)
 {
     autoScroll_.second = val;
     emit sigAutoScrollChanged(autoScroll_.first, autoScroll_.second);
+}
+
+void PointsListModel::setScaleRatioX(qreal val)
+{
+    scale_.setX(val);
+    emit sigScaleRatioChanged(scale_.x(), scale_.y());
+}
+
+void PointsListModel::setScaleRatioY(qreal val)
+{
+    scale_.setY(val);
+    emit sigScaleRatioChanged(scale_.x(), scale_.y());
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const
