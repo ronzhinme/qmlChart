@@ -4,6 +4,9 @@ PointsListModel::PointsListModel()
     : filterModel_(new FilterPointsProxyModel())
     , autoScroll_(false, false)
     , scale_(1.0,1.0)
+    , axisLimitEnabled_(false, false)
+    , axisXLimit_(0, 0)
+    , axisYLimit_(0, 0)
 {
     filterModel_->setSourceModel(this);
 }
@@ -145,6 +148,36 @@ qreal PointsListModel::getScaleRatioY() const
     return scale_.y();
 }
 
+bool PointsListModel::getAxisXLimitEnabled() const
+{
+    return axisLimitEnabled_.first;
+}
+
+bool PointsListModel::getAxisYLimitEnabled() const
+{
+    return axisLimitEnabled_.second;
+}
+
+qreal PointsListModel::getAxisXLimitMin() const
+{
+    return axisXLimit_.first;
+}
+
+qreal PointsListModel::getAxisXLimitMax() const
+{
+    return axisXLimit_.second;
+}
+
+qreal PointsListModel::getAxisYLimitMin() const
+{
+    return axisYLimit_.first;
+}
+
+qreal PointsListModel::getAxisYLimitMax() const
+{
+    return axisYLimit_.second;
+}
+
 void PointsListModel::setYPosition(qreal val)
 {
     xyPosition_.setY(val);
@@ -179,6 +212,42 @@ void PointsListModel::setScaleRatioY(qreal val)
 {
     scale_.setY(val);
     emit sigScaleRatioChanged(scale_.x(), scale_.y());
+}
+
+void PointsListModel::setAxisXLimitEnabled(bool val)
+{
+    axisLimitEnabled_.first = val;
+    emit sigAxisLimitEnabledChanged(axisLimitEnabled_.first, axisLimitEnabled_.second);
+}
+
+void PointsListModel::setAxisYLimitEnabled(bool val)
+{
+    axisLimitEnabled_.second = val;
+    emit sigAxisLimitEnabledChanged(axisLimitEnabled_.first, axisLimitEnabled_.second);
+}
+
+void PointsListModel::setAxisXLimitMin(qreal val)
+{
+    axisXLimit_.first = val;
+    emit sigAxisXLimitChanged(axisXLimit_.first, axisXLimit_.second);
+}
+
+void PointsListModel::setAxisXLimitMax(qreal val)
+{
+    axisXLimit_.second = val;
+    emit sigAxisXLimitChanged(axisXLimit_.first, axisXLimit_.second);
+}
+
+void PointsListModel::setAxisYLimitMin(qreal val)
+{
+    axisYLimit_.first = val;
+    emit sigAxisYLimitChanged(axisYLimit_.first, axisYLimit_.second);
+}
+
+void PointsListModel::setAxisYLimitMax(qreal val)
+{
+    axisYLimit_.second = val;
+    emit sigAxisYLimitChanged(axisYLimit_.first, axisYLimit_.second);
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const

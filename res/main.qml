@@ -17,6 +17,58 @@ Window {
     ColumnLayout {
         anchors.fill: parent
 
+        ColumnLayout {
+
+        RowLayout {
+
+            TextField {
+                id: minXLimit
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: "Min X "
+                validator: DoubleValidator {decimals: 2}
+                onEditingFinished: {
+                    PointsListModelInstance.axisXLimitEnabled = (maxXLimit.text != "" || minXLimit.text != "")
+                    PointsListModelInstance.axisXLimitMin = parseFloat(text)
+                }
+            }
+
+            TextField {
+                id: maxXLimit
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: "Max X "
+                validator: DoubleValidator {decimals: 2}
+                onEditingFinished: {
+                    PointsListModelInstance.axisXLimitEnabled = (maxXLimit.text != "" || minXLimit.text != "")
+                    PointsListModelInstance.axisXLimitMax = parseFloat(text)
+                }
+            }
+        }
+
+        RowLayout {
+
+            TextField {
+                id: minYLimit
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: "Min Y "
+                validator: DoubleValidator {decimals: 2}
+                onEditingFinished: {
+                    PointsListModelInstance.axisYLimitEnabled = (maxYLimit.text != "" || minYLimit.text != "")
+                    PointsListModelInstance.axisYLimitMax = parseFloat(text)
+                }
+            }
+
+            TextField {
+                id: maxYLimit
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: "Max Y "
+                validator: DoubleValidator {decimals: 2}
+                onEditingFinished: {
+                    PointsListModelInstance.axisYLimitEnabled = (maxYLimit.text != "" || minYLimit.text != "")
+                    PointsListModelInstance.axisYLimitMax = parseFloat(text)
+                }
+            }
+        }
+
         RowLayout {
             spacing: 10
 
@@ -50,6 +102,7 @@ Window {
                 }
             }
         }
+}
 
         ColumnLayout {
             RowLayout {
