@@ -25,10 +25,8 @@ Window {
                 id: minXLimit
                 horizontalAlignment: Text.AlignHCenter
                 placeholderText: "Min X "
-                validator: DoubleValidator {decimals: 2}
                 onEditingFinished: {
-                    PointsListModelInstance.axisXLimitEnabled = (maxXLimit.text != "" || minXLimit.text != "")
-                    PointsListModelInstance.axisXLimitMin = parseFloat(text)
+                    updateMinMaxLimitX()
                 }
             }
 
@@ -36,10 +34,8 @@ Window {
                 id: maxXLimit
                 horizontalAlignment: Text.AlignHCenter
                 placeholderText: "Max X "
-                validator: DoubleValidator {decimals: 2}
                 onEditingFinished: {
-                    PointsListModelInstance.axisXLimitEnabled = (maxXLimit.text != "" || minXLimit.text != "")
-                    PointsListModelInstance.axisXLimitMax = parseFloat(text)
+                    updateMinMaxLimitX()
                 }
             }
         }
@@ -50,10 +46,8 @@ Window {
                 id: minYLimit
                 horizontalAlignment: Text.AlignHCenter
                 placeholderText: "Min Y "
-                validator: DoubleValidator {decimals: 2}
                 onEditingFinished: {
-                    PointsListModelInstance.axisYLimitEnabled = (maxYLimit.text != "" || minYLimit.text != "")
-                    PointsListModelInstance.axisYLimitMax = parseFloat(text)
+                    updateMinMaxLimitY()
                 }
             }
 
@@ -61,10 +55,8 @@ Window {
                 id: maxYLimit
                 horizontalAlignment: Text.AlignHCenter
                 placeholderText: "Max Y "
-                validator: DoubleValidator {decimals: 2}
                 onEditingFinished: {
-                    PointsListModelInstance.axisYLimitEnabled = (maxYLimit.text != "" || minYLimit.text != "")
-                    PointsListModelInstance.axisYLimitMax = parseFloat(text)
+                    updateMinMaxLimitY()
                 }
             }
         }
@@ -172,6 +164,34 @@ Window {
 
         hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1)) * scaleX
         vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1)) * scaleY
+    }
+
+    function updateMinMaxLimitX() {
+        var valueMax = parseFloat(maxXLimit.text)
+        var valueMin = parseFloat(minXLimit.text)
+        var limitEnabled = !(valueMin !== valueMin && valueMax !== valueMax)
+
+        PointsListModelInstance.axisXLimitEnabled = limitEnabled
+        if(!(valueMax !== valueMax)) {
+            PointsListModelInstance.axisXLimitMax = valueMax
+        }
+        if(!(valueMin !== valueMin)) {
+            PointsListModelInstance.axisXLimitMin = valueMin
+        }
+    }
+
+    function updateMinMaxLimitY() {
+        var valueMax = parseFloat(maxYLimit.text)
+        var valueMin = parseFloat(minYLimit.text)
+        var limitEnabled = !(valueMin !== valueMin && valueMax !== valueMax)
+
+        PointsListModelInstance.axisYLimitEnabled = limitEnabled
+        if(!(valueMax !== valueMax)) {
+            PointsListModelInstance.axisYLimitMax = valueMax
+        }
+        if(!(valueMin !== valueMin)) {
+            PointsListModelInstance.axisYLimitMin = valueMin
+        }
     }
 
     Connections {

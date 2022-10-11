@@ -36,6 +36,6 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
-    timer.start(3);
+    timer.start(1000);
     return QGuiApplication::exec();
 }
