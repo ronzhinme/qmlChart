@@ -30,6 +30,12 @@ class PointsListModel : public QAbstractListModel
     Q_PROPERTY(bool autoScrollY READ getAutoScrollY WRITE setAutoScrollY NOTIFY sigAutoScrollChanged);
     Q_PROPERTY(qreal scaleRatioX READ getScaleRatioX WRITE setScaleRatioX NOTIFY sigScaleRatioChanged);
     Q_PROPERTY(qreal scaleRatioY READ getScaleRatioY WRITE setScaleRatioY NOTIFY sigScaleRatioChanged);
+    Q_PROPERTY(bool axisXLimitEnabled READ getAxisXLimitEnabled WRITE setAxisXLimitEnabled NOTIFY sigAxisLimitEnabledChanged);
+    Q_PROPERTY(bool axisYLimitEnabled READ getAxisYLimitEnabled WRITE setAxisYLimitEnabled NOTIFY sigAxisLimitEnabledChanged);
+    Q_PROPERTY(qreal axisXLimitMin READ getAxisXLimitMin WRITE setAxisXLimitMin NOTIFY sigAxisXLimitChanged);
+    Q_PROPERTY(qreal axisXLimitMax READ getAxisXLimitMax WRITE setAxisXLimitMax NOTIFY sigAxisXLimitChanged);
+    Q_PROPERTY(qreal axisYLimitMin READ getAxisYLimitMin WRITE setAxisYLimitMin NOTIFY sigAxisYLimitChanged);
+    Q_PROPERTY(qreal axisYLimitMax READ getAxisYLimitMax WRITE setAxisYLimitMax NOTIFY sigAxisYLimitChanged);
 public:
     PointsListModel();
     ~PointsListModel() = default;
@@ -54,6 +60,12 @@ public:
     bool getAutoScrollY() const;
     qreal getScaleRatioX() const;
     qreal getScaleRatioY() const;
+    bool getAxisXLimitEnabled() const;
+    bool getAxisYLimitEnabled() const;
+    qreal getAxisXLimitMin() const;
+    qreal getAxisXLimitMax() const;
+    qreal getAxisYLimitMin() const;
+    qreal getAxisYLimitMax() const;
 
     void setYPosition(qreal val);
     void setXPosition(qreal val);
@@ -61,6 +73,12 @@ public:
     void setAutoScrollY(bool val);
     void setScaleRatioX(qreal val);
     void setScaleRatioY(qreal val);
+    void setAxisXLimitEnabled(bool val);
+    void setAxisYLimitEnabled(bool val);
+    void setAxisXLimitMin(qreal val);
+    void setAxisXLimitMax(qreal val);
+    void setAxisYLimitMin(qreal val);
+    void setAxisYLimitMax(qreal val);
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -77,10 +95,16 @@ private:
     QPointF xyPosition_;
     QPair<bool, bool> autoScroll_;
     QPointF scale_;
+    QPair<bool, bool> axisLimitEnabled_;
+    QPair<qreal, qreal> axisXLimit_;
+    QPair<qreal, qreal> axisYLimit_;
 signals:
     void sigPositionChanged(qreal x, qreal y);
     void sigAutoScrollChanged(bool x, bool y);
     void sigScaleRatioChanged(qreal ratioX, qreal ratioY);
+    void sigAxisLimitEnabledChanged(bool axisX, bool axisY);
+    void sigAxisXLimitChanged(qreal min, qreal max);
+    void sigAxisYLimitChanged(qreal min, qreal max);
 private slots:
     void onPointsChanged_();
 };

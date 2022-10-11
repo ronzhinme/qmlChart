@@ -17,6 +17,50 @@ Window {
     ColumnLayout {
         anchors.fill: parent
 
+        ColumnLayout {
+
+        RowLayout {
+
+            TextField {
+                id: minXLimit
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: "Min X "
+                onEditingFinished: {
+                    updateMinMaxLimitX()
+                }
+            }
+
+            TextField {
+                id: maxXLimit
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: "Max X "
+                onEditingFinished: {
+                    updateMinMaxLimitX()
+                }
+            }
+        }
+
+        RowLayout {
+
+            TextField {
+                id: minYLimit
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: "Min Y "
+                onEditingFinished: {
+                    updateMinMaxLimitY()
+                }
+            }
+
+            TextField {
+                id: maxYLimit
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: "Max Y "
+                onEditingFinished: {
+                    updateMinMaxLimitY()
+                }
+            }
+        }
+
         RowLayout {
             spacing: 10
 
@@ -50,6 +94,7 @@ Window {
                 }
             }
         }
+}
 
         ColumnLayout {
             RowLayout {
@@ -119,6 +164,34 @@ Window {
 
         hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1)) * scaleX
         vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1)) * scaleY
+    }
+
+    function updateMinMaxLimitX() {
+        var valueMax = parseFloat(maxXLimit.text)
+        var valueMin = parseFloat(minXLimit.text)
+        var limitEnabled = !(valueMin !== valueMin && valueMax !== valueMax)
+
+        PointsListModelInstance.axisXLimitEnabled = limitEnabled
+        if(!(valueMax !== valueMax)) {
+            PointsListModelInstance.axisXLimitMax = valueMax
+        }
+        if(!(valueMin !== valueMin)) {
+            PointsListModelInstance.axisXLimitMin = valueMin
+        }
+    }
+
+    function updateMinMaxLimitY() {
+        var valueMax = parseFloat(maxYLimit.text)
+        var valueMin = parseFloat(minYLimit.text)
+        var limitEnabled = !(valueMin !== valueMin && valueMax !== valueMax)
+
+        PointsListModelInstance.axisYLimitEnabled = limitEnabled
+        if(!(valueMax !== valueMax)) {
+            PointsListModelInstance.axisYLimitMax = valueMax
+        }
+        if(!(valueMin !== valueMin)) {
+            PointsListModelInstance.axisYLimitMin = valueMin
+        }
     }
 
     Connections {
