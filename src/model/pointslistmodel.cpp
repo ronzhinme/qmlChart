@@ -7,6 +7,7 @@ PointsListModel::PointsListModel()
     , axisLimitEnabled_(false, false)
     , axisXLimit_(0, 0)
     , axisYLimit_(0, 0)
+    , autofitAxis_(false, false)
 {
     filterModel_->setSourceModel(this);
 }
@@ -188,6 +189,16 @@ qreal PointsListModel::getAxisYLimitMax() const
     return axisYLimit_.second;
 }
 
+bool PointsListModel::getAutoFitX() const
+{
+    return autofitAxis_.first;
+}
+
+bool PointsListModel::getAutoFitY() const
+{
+    return autofitAxis_.second;
+}
+
 void PointsListModel::setYPosition(qreal val)
 {
     xyPosition_.setY(val);
@@ -258,6 +269,18 @@ void PointsListModel::setAxisYLimitMax(qreal val)
 {
     axisYLimit_.second = val;
     emit sigAxisYLimitChanged(axisYLimit_.first, axisYLimit_.second);
+}
+
+void PointsListModel::setAutoFitX(bool val)
+{
+    autofitAxis_.first = val;
+    emit sigAutoFitChanged(autofitAxis_.first, autofitAxis_.second);
+}
+
+void PointsListModel::setAutoFitY(bool val)
+{
+    autofitAxis_.second = val;
+    emit sigAutoFitChanged(autofitAxis_.first, autofitAxis_.second);
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const
