@@ -19,82 +19,119 @@ Window {
 
         ColumnLayout {
 
-        RowLayout {
+            RowLayout {
 
-            TextField {
-                id: minXLimit
-                horizontalAlignment: Text.AlignHCenter
-                placeholderText: "Min X "
-                onEditingFinished: {
-                    updateMinMaxLimitX()
+                TextField {
+                    id: minXLimit
+                    horizontalAlignment: Text.AlignHCenter
+                    placeholderText: "Min X "
+                    onEditingFinished: {
+                        updateMinMaxLimitX()
+                    }
+                }
+
+                TextField {
+                    id: maxXLimit
+                    horizontalAlignment: Text.AlignHCenter
+                    placeholderText: "Max X "
+                    onEditingFinished: {
+                        updateMinMaxLimitX()
+                    }
                 }
             }
 
-            TextField {
-                id: maxXLimit
-                horizontalAlignment: Text.AlignHCenter
-                placeholderText: "Max X "
-                onEditingFinished: {
-                    updateMinMaxLimitX()
+            RowLayout {
+
+                TextField {
+                    id: minYLimit
+                    horizontalAlignment: Text.AlignHCenter
+                    placeholderText: "Min Y "
+                    onEditingFinished: {
+                        updateMinMaxLimitY()
+                    }
+                }
+
+                TextField {
+                    id: maxYLimit
+                    horizontalAlignment: Text.AlignHCenter
+                    placeholderText: "Max Y "
+                    onEditingFinished: {
+                        updateMinMaxLimitY()
+                    }
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                CheckBox {
+                    text: "Fit view port by X"
+                    onCheckedChanged: {
+                        PointsListModelInstance.autoFitX = checked
+                    }
+                    Component.onCompleted: {
+                        PointsListModelInstance.autoFitX = false
+                    }
+                }
+
+                CheckBox {
+                    text: "Fit view port by Y"
+                    onCheckedChanged: {
+                        PointsListModelInstance.autoFitY = checked
+                    }
+                    Component.onCompleted: {
+                        PointsListModelInstance.autoFitY = false
+                    }
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+
+                CheckBox {
+                    text: "Auto scroll X"
+                    onCheckedChanged: {
+                        PointsListModelInstance.autoScrollX = checked
+                    }
+                    Component.onCompleted: {
+                        PointsListModelInstance.autoScrollX = false
+                    }
+                }
+
+                CheckBox {
+                    text: "Auto scroll Y"
+                    onCheckedChanged: {
+                        PointsListModelInstance.autoScrollY = checked
+                    }
+                    Component.onCompleted: {
+                        PointsListModelInstance.autoScrollY = false
+                    }
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+
+                TextField {
+                    horizontalAlignment: Text.AlignHCenter
+                    text: enabled ? "1.0" : PointsListModelInstance.scaleRatioX
+                    enabled: !PointsListModelInstance.autoFitX
+                    validator: DoubleValidator{bottom: -5; top: 5}
+                    onEditingFinished: {
+                        PointsListModelInstance.scaleRatioX = parseFloat(text)
+                    }
+                }
+
+                TextField {
+                    horizontalAlignment: Text.AlignHCenter
+                    text: enabled ? "1.0" : PointsListModelInstance.scaleRatioY
+                    enabled: !PointsListModelInstance.autoFitY
+                    validator: DoubleValidator{bottom: -5; top: 5}
+                    onEditingFinished: {
+                        PointsListModelInstance.scaleRatioY = parseFloat(text)
+                    }
                 }
             }
         }
-
-        RowLayout {
-
-            TextField {
-                id: minYLimit
-                horizontalAlignment: Text.AlignHCenter
-                placeholderText: "Min Y "
-                onEditingFinished: {
-                    updateMinMaxLimitY()
-                }
-            }
-
-            TextField {
-                id: maxYLimit
-                horizontalAlignment: Text.AlignHCenter
-                placeholderText: "Max Y "
-                onEditingFinished: {
-                    updateMinMaxLimitY()
-                }
-            }
-        }
-
-        RowLayout {
-            spacing: 10
-
-            CheckBox {
-                text: "Auto scroll X"
-                onCheckedChanged: {
-                    PointsListModelInstance.autoScrollX = checked
-                }
-                Component.onCompleted: {
-                    PointsListModelInstance.autoScrollX = false
-                }
-            }
-
-            CheckBox {
-                text: "Auto scroll Y"
-                onCheckedChanged: {
-                    PointsListModelInstance.autoScrollY = checked
-                }
-                Component.onCompleted: {
-                    PointsListModelInstance.autoScrollY = false
-                }
-            }
-
-            TextField {
-                horizontalAlignment: Text.AlignHCenter
-                text: "1.0"
-                validator: DoubleValidator{bottom: -5; top: 5}
-                onEditingFinished: {
-                    PointsListModelInstance.scaleRatioX = parseFloat(text)
-                    PointsListModelInstance.scaleRatioY = parseFloat(text)
-                }
-            }
-        }
-}
 
         ColumnLayout {
             RowLayout {
@@ -148,7 +185,7 @@ Window {
                 orientation: Qt.Horizontal
                 position: hPos
                 Layout.fillWidth: true
-
+                Layout.rightMargin: vScroll.width
                 onPositionChanged: {
                     PointsListModelInstance.xPosition = position
                 }
@@ -162,8 +199,13 @@ Window {
         var scaleX = PointsListModelInstance.scaleRatioX
         var scaleY = PointsListModelInstance.scaleRatioY
 
-        hScroll.size = width / ((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1)) * scaleX
-        vScroll.size = height / ((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1)) * scaleY
+        if(!PointsListModelInstance.autoFitX) {
+            hScroll.size = hScroll.width / (((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1)) * scaleX)
+        }
+
+        if(!PointsListModelInstance.autoFitY) {
+            vScroll.size = vScroll.height / (((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1)) * scaleY)
+        }
     }
 
     function updateMinMaxLimitX() {

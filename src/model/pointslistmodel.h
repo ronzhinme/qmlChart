@@ -36,6 +36,8 @@ class PointsListModel : public QAbstractListModel
     Q_PROPERTY(qreal axisXLimitMax READ getAxisXLimitMax WRITE setAxisXLimitMax NOTIFY sigAxisXLimitChanged);
     Q_PROPERTY(qreal axisYLimitMin READ getAxisYLimitMin WRITE setAxisYLimitMin NOTIFY sigAxisYLimitChanged);
     Q_PROPERTY(qreal axisYLimitMax READ getAxisYLimitMax WRITE setAxisYLimitMax NOTIFY sigAxisYLimitChanged);
+    Q_PROPERTY(bool autoFitX READ getAutoFitX WRITE setAutoFitX NOTIFY sigAutoFitChanged);
+    Q_PROPERTY(bool autoFitY READ getAutoFitY WRITE setAutoFitY NOTIFY sigAutoFitChanged);
 public:
     PointsListModel();
     ~PointsListModel() = default;
@@ -66,6 +68,8 @@ public:
     qreal getAxisXLimitMax() const;
     qreal getAxisYLimitMin() const;
     qreal getAxisYLimitMax() const;
+    bool getAutoFitX() const;
+    bool getAutoFitY() const;
 
     void setYPosition(qreal val);
     void setXPosition(qreal val);
@@ -79,6 +83,8 @@ public:
     void setAxisXLimitMax(qreal val);
     void setAxisYLimitMin(qreal val);
     void setAxisYLimitMax(qreal val);
+    void setAutoFitX(bool val);
+    void setAutoFitY(bool val);
     // QAbstractItemModel interface
 public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -98,6 +104,7 @@ private:
     QPair<bool, bool> axisLimitEnabled_;
     QPair<qreal, qreal> axisXLimit_;
     QPair<qreal, qreal> axisYLimit_;
+    QPair<bool, bool> autofitAxis_;
 signals:
     void sigPositionChanged(qreal x, qreal y);
     void sigAutoScrollChanged(bool x, bool y);
@@ -105,6 +112,7 @@ signals:
     void sigAxisLimitEnabledChanged(bool axisX, bool axisY);
     void sigAxisXLimitChanged(qreal min, qreal max);
     void sigAxisYLimitChanged(qreal min, qreal max);
+    void sigAutoFitChanged(bool autoFitX, bool autoFitY);
 private slots:
     void onPointsChanged_();
 };
