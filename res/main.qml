@@ -113,7 +113,8 @@ Window {
 
                 TextField {
                     horizontalAlignment: Text.AlignHCenter
-                    text: "1.0"
+                    text: enabled ? "1.0" : PointsListModelInstance.scaleRatioX
+                    enabled: !PointsListModelInstance.autoFitX
                     validator: DoubleValidator{bottom: -5; top: 5}
                     onEditingFinished: {
                         PointsListModelInstance.scaleRatioX = parseFloat(text)
@@ -122,7 +123,8 @@ Window {
 
                 TextField {
                     horizontalAlignment: Text.AlignHCenter
-                    text: "1.0"
+                    text: enabled ? "1.0" : PointsListModelInstance.scaleRatioY
+                    enabled: !PointsListModelInstance.autoFitY
                     validator: DoubleValidator{bottom: -5; top: 5}
                     onEditingFinished: {
                         PointsListModelInstance.scaleRatioY = parseFloat(text)
@@ -183,7 +185,7 @@ Window {
                 orientation: Qt.Horizontal
                 position: hPos
                 Layout.fillWidth: true
-
+                Layout.rightMargin: vScroll.width
                 onPositionChanged: {
                     PointsListModelInstance.xPosition = position
                 }
@@ -197,8 +199,13 @@ Window {
         var scaleX = PointsListModelInstance.scaleRatioX
         var scaleY = PointsListModelInstance.scaleRatioY
 
-        hScroll.size = hScroll.width / (((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1)) * scaleX)
-        vScroll.size = vScroll.height / (((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1)) * scaleY)
+        if(!PointsListModelInstance.autoFitX) {
+            hScroll.size = hScroll.width / (((rbPoint.x - ltPoint.x) * (ltPoint.x < 0 ? 2 : 1)) * scaleX)
+        }
+
+        if(!PointsListModelInstance.autoFitY) {
+            vScroll.size = vScroll.height / (((rbPoint.y - ltPoint.y) * (ltPoint.y < 0 ? 2 : 1)) * scaleY)
+        }
     }
 
     function updateMinMaxLimitX() {

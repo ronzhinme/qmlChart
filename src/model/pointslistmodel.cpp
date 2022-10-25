@@ -66,15 +66,15 @@ QPointF PointsListModel::getRightBottomPoint() const
 
 void PointsListModel::setLeftTopViewPortPoint(qreal x, qreal y)
 {
-    leftTopViewPortPoint_.setX(x);
-    leftTopViewPortPoint_.setY(y);
+    leftTopViewPortPoint_.setX(autofitAxis_.first ? leftTopPoint_.x() : x);
+    leftTopViewPortPoint_.setY(autofitAxis_.second ? leftTopPoint_.y() : y);
     filterModel_->setFilterFixedString("");
 }
 
 void PointsListModel::setRightBottomViewPortPoint(qreal x, qreal y)
 {
-    rightBottomViewPortPoint_.setX(x);
-    rightBottomViewPortPoint_.setY(y);
+    rightBottomViewPortPoint_.setX(autofitAxis_.first ? rightBottomPoint_.x() : x);
+    rightBottomViewPortPoint_.setY(autofitAxis_.second ? rightBottomPoint_.y() : y);
     filterModel_->setFilterFixedString("");
 }
 
@@ -127,6 +127,18 @@ void PointsListModel::updateViewPort(float width, float height, float xPosition,
     setRightBottomViewPortPoint(maxXViewPort, maxYViewPort);
     setXPosition(xPosition);
     setYPosition(yPosition);
+
+    if(autofitAxis_.first)
+    {
+        const auto scale = width / (rightBottomPoint_.x() - leftTopPoint_.x()) ;
+        setScaleRatioX(scale / (minX < 0 ? 2 : 1));
+    }
+
+    if(autofitAxis_.second)
+    {
+        const auto scale = height / std::abs(rightBottomPoint_.y() - leftTopPoint_.y());
+        setScaleRatioY(scale);
+    }
 }
 
 qreal PointsListModel::getXPosition() const
@@ -279,7 +291,7 @@ void PointsListModel::setAutoFitX(bool val)
 
 void PointsListModel::setAutoFitY(bool val)
 {
-    autofitAxis_.second = val;
+    autofitAxis_.second = val;   
     emit sigAutoFitChanged(autofitAxis_.first, autofitAxis_.second);
 }
 
