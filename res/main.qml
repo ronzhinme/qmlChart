@@ -111,6 +111,30 @@ Window {
             RowLayout {
                 spacing: 10
 
+                CheckBox {
+                    text: "Invert X"
+                    onCheckedChanged: {
+                        PointsListModelInstance.invertX = checked
+                    }
+                    Component.onCompleted: {
+                        PointsListModelInstance.invertX = false
+                    }
+                }
+
+                CheckBox {
+                    text: "Invert Y"
+                    onCheckedChanged: {
+                        PointsListModelInstance.invertY = checked
+                    }
+                    Component.onCompleted: {
+                        PointsListModelInstance.invertY = false
+                    }
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+
                 TextField {
                     horizontalAlignment: Text.AlignHCenter
                     text: enabled ? "1.0" : PointsListModelInstance.scaleRatioX

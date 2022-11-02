@@ -211,6 +211,16 @@ bool PointsListModel::getAutoFitY() const
     return autofitAxis_.second;
 }
 
+bool PointsListModel::getInvertX() const
+{
+    return invertAxis_.first;
+}
+
+bool PointsListModel::getInvertY() const
+{
+    return invertAxis_.second;
+}
+
 void PointsListModel::setYPosition(qreal val)
 {
     xyPosition_.setY(val);
@@ -293,6 +303,18 @@ void PointsListModel::setAutoFitY(bool val)
 {
     autofitAxis_.second = val;   
     emit sigAutoFitChanged(autofitAxis_.first, autofitAxis_.second);
+}
+
+void PointsListModel::setInvertX(bool val)
+{
+    invertAxis_.first = val;
+    emit sigInvertChanged(invertAxis_.first, invertAxis_.second);
+}
+
+void PointsListModel::setInvertY(bool val)
+{
+    invertAxis_.second = val;
+    emit sigInvertChanged(invertAxis_.first, invertAxis_.second);
 }
 
 int PointsListModel::rowCount(const QModelIndex &parent) const
